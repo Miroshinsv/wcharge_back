@@ -1,47 +1,52 @@
 package usecase
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-// TranslationUseCase -.
-type UserUseCase struct {
-	repo   UserRepo
-	webAPI UserWebAPI
+func (uc *UseCase) CreateUser(u entity.User) error {
+	err := uc.postgres.CreateUserRepo(u)
+	if err != nil {
+		return fmt.Errorf("UserUseCase - CreateUser - uc.repo.CreateUser: %w", err)
+	}
+
+	return nil
 }
 
-// New -.
-func New(r UserRepo, w UserWebAPI) *UserUseCase {
-	return &UserUseCase{
-		repo:   r,
-		webAPI: w,
+func (uc *UseCase) UpdateUser(u entity.User) error {
+	err := uc.postgres.UpdateUserRepo(u)
+	if err != nil {
+		return fmt.Errorf("UserUseCase - UpdateUser - uc.repo.UpdateUser: %w", err)
 	}
+
+	return nil
 }
 
-// History - getting translate history from store.
-func (uc *UserUseCase) History(ctx context.Context) ([]entity.User, error) {
-	translations, err := uc.repo.GetHistory(ctx)
+func (uc *UseCase) DeleteUser(u entity.User) error {
+	err := uc.postgres.DeleteUserRepo(u)
 	if err != nil {
-		return nil, fmt.Errorf("TranslationUseCase - History - s.repo.GetHistory: %w", err)
+		return fmt.Errorf("UserUseCase - DeleteUser - uc.repo.DeleteUser: %w", err)
 	}
 
-	return translations, nil
+	return nil
 }
 
-// Translate -.
-func (uc *UserUseCase) Translate(ctx context.Context, t entity.User) (entity.User, error) {
-	translation, err := uc.webAPI.Translate(t)
+func (uc *UseCase) GetUser(u entity.User) (entity.User, error) {
+	user, err := uc.postgres.GetUserRepo(u)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("TranslationUseCase - Translate - s.webAPI.Translate: %w", err)
+		return entity.User{}, fmt.Errorf("UserUseCase - GetUsers - uc.repo.GetUsers: %w", err)
 	}
 
-	err = uc.repo.Store(context.Background(), translation)
+	return user, nil
+}
+
+func (uc *UseCase) GetUsers() ([]entity.User, error) {
+	users, err := uc.postgres.GetUsersRepo()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("TranslationUseCase - Translate - s.repo.Store: %w", err)
+		return nil, fmt.Errorf("UserUseCase - GetUsers - uc.repo.GetUsers: %w", err)
 	}
 
-	return translation, nil
+	return users, nil
 }

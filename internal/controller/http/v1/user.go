@@ -1,81 +1,143 @@
 package v1
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	"github.com/Miroshinsv/wcharge_back/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 type userRoutes struct {
-	t usecase.User
+	u usecase.UserAPI
 	l logger.Interface
 }
 
-func newUserRoutes(handler *gin.RouterGroup, u usecase.User, l logger.Interface) {
-	r := &userRoutes{u, l}
+func newUserRoutes(router *mux.Router, u usecase.UserAPI, l logger.Interface) {
 
-	h := handler.Group("/user")
-	{
-		h.GET("/all", r.GetAllUsers)
-		h.POST("/update/{id}", r.UpdateUser)
-	}
+	ur := &userRoutes{u, l}
+	router.HandleFunc("/api/user/all", ur.GetUsersWebAPI).Methods("GET")              // Получить список всех пользователей
+	router.HandleFunc("/api/user/get/{id}", ur.GetUserWebAPI).Methods("GET")          // Получить информацию о конкретном пользователе
+	router.HandleFunc("/api/user/create", ur.CreateUserWebAPI).Methods("POST")        // Создать нового пользователя
+	router.HandleFunc("/api/user/update/{id}", ur.UpdateUserWebAPI).Methods("PUT")    // Обновить информацию о пользователе
+	router.HandleFunc("/api/user/delete/{id}", ur.DeleteUserWebAPI).Methods("DELETE") // Удалить пользователя
 }
 
-type historyResponse struct {
-	History []entity.User `json:"history"`
-}
-
-// @Summary     Get all users
-// @Accept      json
-// @Produce     json
-// @Success     200 {object} usersResponse
-// @Failure     500 {object} response
-// @Router      /user/all [get]
-func (r *userRoutes) GetAllUsers(c *gin.Context) {
-	translations, err := r.t.History(c.Request.Context())
-	if err != nil {
-		r.l.Error(err, "http - v1 - users")
-		errorResponse(c, http.StatusInternalServerError, "database problems")
-
-		return
-	}
-
-	c.JSON(http.StatusOK, historyResponse{translations})
+type GetUsersResponse struct {
+	Users []entity.User `json:"history"`
 }
 
 type UpdateRequest struct {
-	ID       int    `json:"id"       binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email"    binding:"required"`
+	ID       int          `json:"id"       binding:"required"`
+	Username string       `json:"username" binding:"required"`
+	Email    string       `json:"email"    binding:"required"`
+	Role     *entity.Role `json:"role"     binding:"required"`
 }
 
-func (r *userRoutes) UpdateUser(c *gin.Context) {
-	var request UpdateRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		r.l.Error(err, "http - v1 - doTranslate")
-		errorResponse(c, http.StatusBadRequest, "invalid request body")
-
-		return
+func RequestToJSONUser(w http.ResponseWriter, r *http.Request) (entity.User, error) {
+	headerContentTtype := r.Header.Get("Content-Type")
+	if headerContentTtype != "application/json" {
+		errorResponse(w, "Content Type is not application/json", http.StatusUnsupportedMediaType)
+		return entity.User{}, errors.New("Content Type is not application/json")
 	}
+	var u entity.User
+	var unmarshalErr *json.UnmarshalTypeError
 
-	translation, err := r.t.Translate(
-		c.Request.Context(),
-		entity.User{
-			ID:       request.ID,
-			Username: request.Username,
-			Email:    request.Email,
-		},
-	)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&u)
 	if err != nil {
-		r.l.Error(err, "http - v1 - doTranslate")
-		errorResponse(c, http.StatusInternalServerError, "translation service problems")
+		if errors.As(err, &unmarshalErr) {
+			errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
+		} else {
+			errorResponse(w, "Bad Request "+err.Error(), http.StatusBadRequest)
+		}
+		return entity.User{}, errors.New("Bad Request - entity is not User")
+	}
 
+	return u, nil
+}
+
+func (ur *userRoutes) GetUsersWebAPI(w http.ResponseWriter, r *http.Request) {
+	users, err := ur.u.GetUsers()
+	if err != nil {
+		w.Write([]byte("error - GetUsersWebAPI - usecase.User.GetUsers - " + err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, translation)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	for _, u := range users {
+		json.NewEncoder(w).Encode(u)
+	}
+}
+
+func (ur *userRoutes) GetUserWebAPI(w http.ResponseWriter, r *http.Request) {
+	u, err := RequestToJSONUser(w, r)
+	if err != nil {
+		return
+	}
+	user, err := ur.u.GetUser(u)
+	if err != nil {
+		errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), 0)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(user)
+}
+
+func (ur *userRoutes) CreateUserWebAPI(w http.ResponseWriter, r *http.Request) {
+	u, err := RequestToJSONUser(w, r)
+	if err != nil {
+		return
+	}
+
+	err = ur.u.CreateUser(u)
+	if err != nil {
+		errorResponse(w, "error - CreateUserWebAPI - usecase.User.CreateUser - "+err.Error(), 0)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ur *userRoutes) UpdateUserWebAPI(w http.ResponseWriter, r *http.Request) {
+	u, err := RequestToJSONUser(w, r)
+	if err != nil {
+		return
+	}
+
+	err = ur.u.UpdateUser(u)
+	if err != nil {
+		errorResponse(w, "error - UpdateUserWebAPI - usecase.User.UpdateUser - "+err.Error(), 0)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ur *userRoutes) DeleteUserWebAPI(w http.ResponseWriter, r *http.Request) {
+	u, err := RequestToJSONUser(w, r)
+	if err != nil {
+		return
+	}
+
+	user := ur.u.DeleteUser(u)
+	if err != nil {
+		errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), 0)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(user)
 }

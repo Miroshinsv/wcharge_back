@@ -1,13 +1,15 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"encoding/json"
+	"net/http"
 )
 
-type response struct {
-	Error string `json:"error" example:"message"`
-}
-
-func errorResponse(c *gin.Context, code int, msg string) {
-	c.AbortWithStatusJSON(code, response{msg})
+func errorResponse(w http.ResponseWriter, message string, httpStatusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatusCode)
+	resp := make(map[string]string)
+	resp["message"] = message
+	jsonResp, _ := json.Marshal(resp)
+	w.Write(jsonResp)
 }

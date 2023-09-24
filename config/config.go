@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -13,7 +11,7 @@ type (
 		HTTP `yaml:"http"`
 		Log  `yaml:"logger"`
 		PG   `yaml:"postgres"`
-		RMQ  `yaml:"rabbitmq"`
+		//RMQ  `yaml:"rabbitmq"`
 	}
 
 	// App -.
@@ -39,11 +37,11 @@ type (
 	}
 
 	// RMQ -.
-	RMQ struct {
-		ServerExchange string `env-required:"true" yaml:"rpc_server_exchange" env:"RMQ_RPC_SERVER"`
-		ClientExchange string `env-required:"true" yaml:"rpc_client_exchange" env:"RMQ_RPC_CLIENT"`
-		URL            string `env-required:"true"                            env:"RMQ_URL"`
-	}
+	//RMQ struct {
+	//	ServerExchange string `env-required:"true" yaml:"rpc_server_exchange" env:"RMQ_RPC_SERVER"`
+	//	ClientExchange string `env-required:"true" yaml:"rpc_client_exchange" env:"RMQ_RPC_CLIENT"`
+	//	URL            string `env-required:"true"                            env:"RMQ_URL"`
+	//}
 )
 
 // NewConfig returns app config.
@@ -52,9 +50,9 @@ func NewConfig() (*Config, error) {
 
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
+		//return nil, fmt.Errorf("config error: %w", err)
 	}
-
+	cfg.PG.URL = "postgres://user:pass@localhost:5432/postgres"
 	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
 		return nil, err
