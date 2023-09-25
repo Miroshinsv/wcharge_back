@@ -22,8 +22,12 @@ func (r *PostgresRepo) DeletePowerbank(ctx context.Context, p entity.Powerbank) 
 	return nil
 }
 
-// GetHistory -.
-func (r *PostgresRepo) GetPowerbank(ctx context.Context) ([]entity.Powerbank, error) {
+func (r *PostgresRepo) GetPowerbank(ctx context.Context, p entity.Powerbank) (entity.Powerbank, error) {
+
+	return entity.Powerbank{}, nil
+}
+
+func (r *PostgresRepo) GetPowerbanks(ctx context.Context) ([]entity.Powerbank, error) {
 
 	return nil, nil
 }

@@ -14,9 +14,10 @@ import (
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /v1
-func NewRouter(router *mux.Router, u usecase.UserAPI, l logger.Interface) {
+func NewRouter(router *mux.Router, useCase *usecase.UseCase, l logger.Interface) {
 	router.HandleFunc("/", home).Methods("GET")
-	newUserRoutes(router, u, l)
+	newUserRoutes(router, useCase, l)
+	newStationRoutes(router, useCase, l)
 }
 
 func home(w http.ResponseWriter, r *http.Request) {

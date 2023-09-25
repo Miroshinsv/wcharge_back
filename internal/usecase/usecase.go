@@ -1,11 +1,12 @@
 package usecase
 
 type UseCase struct {
-	postgres UserRepo
+	postgres PostgresRepo
 	//webapi  WebAPI
+	//mqtt    MQTTApi
 }
 
-func New(r UserRepo) *UseCase {
+func New(r PostgresRepo) *UseCase {
 	return &UseCase{
 		postgres: r,
 	}

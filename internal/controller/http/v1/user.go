@@ -38,10 +38,10 @@ type UpdateRequest struct {
 }
 
 func RequestToJSONUser(w http.ResponseWriter, r *http.Request) (entity.User, error) {
-	headerContentTtype := r.Header.Get("Content-Type")
-	if headerContentTtype != "application/json" {
-		errorResponse(w, "Content Type is not application/json", http.StatusUnsupportedMediaType)
-		return entity.User{}, errors.New("Content Type is not application/json")
+	headerContentType := r.Header.Get("Content-Type")
+	if headerContentType != "application/json" {
+		errorResponse(w, "content type is not application/json", http.StatusUnsupportedMediaType)
+		return entity.User{}, errors.New("content type is not application/json")
 	}
 	var u entity.User
 	var unmarshalErr *json.UnmarshalTypeError
@@ -51,11 +51,11 @@ func RequestToJSONUser(w http.ResponseWriter, r *http.Request) (entity.User, err
 	err := decoder.Decode(&u)
 	if err != nil {
 		if errors.As(err, &unmarshalErr) {
-			errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
+			errorResponse(w, "bad request - wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
 		} else {
-			errorResponse(w, "Bad Request "+err.Error(), http.StatusBadRequest)
+			errorResponse(w, "bad request "+err.Error(), http.StatusBadRequest)
 		}
-		return entity.User{}, errors.New("Bad Request - entity is not User")
+		return entity.User{}, errors.New("bad request - entity is not User")
 	}
 
 	return u, nil
@@ -64,7 +64,7 @@ func RequestToJSONUser(w http.ResponseWriter, r *http.Request) (entity.User, err
 func (ur *userRoutes) GetUsersWebAPI(w http.ResponseWriter, r *http.Request) {
 	users, err := ur.u.GetUsers()
 	if err != nil {
-		w.Write([]byte("error - GetUsersWebAPI - usecase.User.GetUsers - " + err.Error()))
+		errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (ur *userRoutes) GetUserWebAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := ur.u.GetUser(u)
 	if err != nil {
-		errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), 0)
+		errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

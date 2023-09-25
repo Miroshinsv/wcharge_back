@@ -8,6 +8,13 @@ import (
 //go:generate mockgen -source=interfaces.go -destination=./mocks_test.go -package=usecase_test
 
 type (
+	PostgresRepo interface {
+		UserRepo
+		StationRepo
+	}
+)
+
+type (
 	UserAPI interface {
 		CreateUser(entity.User) error
 		UpdateUser(entity.User) error
@@ -26,9 +33,19 @@ type (
 )
 
 type (
-	Powerbank interface {
+	StationAPI interface {
+		CreateStation(station entity.Station) error
+		UpdateStation(entity.Station) error
+		DeleteStation(entity.Station) error
+		GetStation(entity.Station) (entity.Station, error)
+		GetStations() ([]entity.Station, error)
 	}
 
-	PowerbankPostgres interface {
+	StationRepo interface {
+		CreateStationRepo(entity.Station) error
+		UpdateStationRepo(entity.Station) error
+		DeleteStationRepo(entity.Station) error
+		GetStationRepo(entity.Station) (entity.Station, error)
+		GetStationsRepo() ([]entity.Station, error)
 	}
 )

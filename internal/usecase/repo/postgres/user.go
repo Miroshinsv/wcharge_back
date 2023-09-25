@@ -29,7 +29,6 @@ func (r *PostgresRepo) GetUserRepo(u entity.User) (entity.User, error) {
 	return entity.User{}, nil
 }
 
-// GetHistory -.
 func (r *PostgresRepo) GetUsersRepo() ([]entity.User, error) {
 	sql, _, err := r.Builder.
 		Select("id, username, email, role").
