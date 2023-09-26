@@ -18,6 +18,7 @@ func NewRouter(router *mux.Router, useCase *usecase.UseCase, l logger.Interface)
 	router.HandleFunc("/", home).Methods("GET")
 	newUserRoutes(router, useCase, l)
 	newStationRoutes(router, useCase, l)
+	newPowerbankRoutes(router, useCase, l)
 }
 
 func home(w http.ResponseWriter, r *http.Request) {

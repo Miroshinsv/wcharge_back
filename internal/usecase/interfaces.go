@@ -11,6 +11,7 @@ type (
 	PostgresRepo interface {
 		UserRepo
 		StationRepo
+		PowerbankRepo
 	}
 )
 
@@ -47,5 +48,23 @@ type (
 		DeleteStationRepo(entity.Station) error
 		GetStationRepo(entity.Station) (entity.Station, error)
 		GetStationsRepo() ([]entity.Station, error)
+	}
+)
+
+type (
+	PowerbankAPI interface {
+		CreatePowerbank(station entity.Powerbank) error
+		UpdatePowerbank(entity.Powerbank) error
+		DeletePowerbank(entity.Powerbank) error
+		GetPowerbank(entity.Powerbank) (entity.Powerbank, error)
+		GetPowerbanks() ([]entity.Powerbank, error)
+	}
+
+	PowerbankRepo interface {
+		CreatePowerbankRepo(entity.Powerbank) error
+		UpdatePowerbankRepo(entity.Powerbank) error
+		DeletePowerbankRepo(entity.Powerbank) error
+		GetPowerbankRepo(entity.Powerbank) (entity.Powerbank, error)
+		GetPowerbanksRepo() ([]entity.Powerbank, error)
 	}
 )

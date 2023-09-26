@@ -71,7 +71,11 @@ func (ur *userRoutes) GetUsersWebAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	for _, u := range users {
-		json.NewEncoder(w).Encode(u)
+		err = json.NewEncoder(w).Encode(u)
+		if err != nil {
+			errorResponse(w, "error - GetUsersWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 

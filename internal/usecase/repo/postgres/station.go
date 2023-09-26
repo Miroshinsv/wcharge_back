@@ -48,7 +48,7 @@ func (r *PostgresRepo) GetStationsRepo() ([]entity.Station, error) {
 	for rows.Next() {
 		e := entity.Station{}
 
-		err = rows.Scan(&e.ID, &e.SerialNumber, &e.Address.ID, &e.Capacity, &e.FreeCapacity)
+		err = rows.Scan(&e.ID, &e.SerialNumber, &e.AddressId, &e.Capacity, &e.FreeCapacity)
 		if err != nil {
 			return nil, fmt.Errorf("UserRepo - GetUsers - rows.Scan: %w", err)
 		}
