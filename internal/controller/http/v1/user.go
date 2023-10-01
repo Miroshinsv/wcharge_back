@@ -12,11 +12,11 @@ import (
 var sessionName = "userSession"
 
 func (s *server) newUserRoutes() {
-	s.router.HandleFunc("/api/user/login", s.LoginWebAPI()).Methods("POST")
-	s.router.HandleFunc("/api/user/all", s.GetUsersWebAPI).Methods("GET")                              // Получить список всех пользователей
-	s.router.HandleFunc("/api/user/get/{id:[0-9]+}", s.GetUserWebAPI).Methods("GET")                   // Получить информацию о конкретном пользователе
-	s.router.HandleFunc("/api/user/create", s.CreateUserWebAPI()).Methods("POST")                      // Создать нового пользователя
-	s.router.HandleFunc("/api/user/update/{id:[0-9]+}", s.UpdateUserWebAPI).Methods("PUT")             // Обновить информацию о пользователе
+	s.router.HandleFunc("/api/user/login", s.LoginWebAPI()).Methods(http.MethodPost)
+	s.router.HandleFunc("/api/user/all", s.GetUsersWebAPI).Methods(http.MethodGet)                     // Получить список всех пользователей
+	s.router.HandleFunc("/api/user/get/{id:[0-9]+}", s.GetUserWebAPI).Methods(http.MethodGet)          // Получить информацию о конкретном пользователе
+	s.router.HandleFunc("/api/user/create", s.CreateUserWebAPI()).Methods(http.MethodPost)             // Создать нового пользователя
+	s.router.HandleFunc("/api/user/update/{id:[0-9]+}", s.UpdateUserWebAPI).Methods(http.MethodPut)    // Обновить информацию о пользователе
 	s.router.HandleFunc("/api/user/delete/{id:[0-9]+}", s.DeleteUserWebAPI).Methods(http.MethodDelete) // Удалить пользователя
 }
 
