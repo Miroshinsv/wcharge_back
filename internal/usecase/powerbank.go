@@ -15,8 +15,8 @@ func (uc *UseCase) CreatePowerbank(p entity.Powerbank) error {
 	return nil
 }
 
-func (uc *UseCase) UpdatePowerbank(p entity.Powerbank) error {
-	err := uc.postgres.UpdatePowerbankRepo(p)
+func (uc *UseCase) UpdatePowerbank(id int, p entity.Powerbank) error {
+	err := uc.postgres.UpdatePowerbankRepo(id, p)
 	if err != nil {
 		return fmt.Errorf("UseCase - UpdateStation - uc.repo.UpdateStationRepo: %w", err)
 	}
@@ -24,8 +24,8 @@ func (uc *UseCase) UpdatePowerbank(p entity.Powerbank) error {
 	return nil
 }
 
-func (uc *UseCase) DeletePowerbank(p entity.Powerbank) error {
-	err := uc.postgres.DeletePowerbankRepo(p)
+func (uc *UseCase) DeletePowerbank(id int) error {
+	err := uc.postgres.DeletePowerbankRepo(id)
 	if err != nil {
 		return fmt.Errorf("UseCase - DeleteStation - uc.repo.DeleteStationRepo: %w", err)
 	}
@@ -33,8 +33,8 @@ func (uc *UseCase) DeletePowerbank(p entity.Powerbank) error {
 	return nil
 }
 
-func (uc *UseCase) GetPowerbank(p entity.Powerbank) (entity.Powerbank, error) {
-	powerbank, err := uc.postgres.GetPowerbankRepo(p)
+func (uc *UseCase) GetPowerbank(id int) (entity.Powerbank, error) {
+	powerbank, err := uc.postgres.GetPowerbankRepo(id)
 	if err != nil {
 		return entity.Powerbank{}, fmt.Errorf("UseCase - GetStation - uc.repo.GetStationRepo: %w", err)
 	}

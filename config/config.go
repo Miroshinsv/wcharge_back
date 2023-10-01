@@ -22,7 +22,8 @@ type (
 
 	// HTTP -.
 	HTTP struct {
-		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+		Port           string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+		SessionHttpKey string `env-required:"true" yaml:"session_http_key" env:"SESSION_HTTP_KEY"`
 	}
 
 	// Log -.

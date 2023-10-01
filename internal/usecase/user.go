@@ -6,6 +6,11 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
+func (uc *UseCase) Login(l entity.UserLogin) error {
+
+	return nil
+}
+
 func (uc *UseCase) CreateUser(u entity.User) error {
 	err := uc.postgres.CreateUserRepo(u)
 	if err != nil {
@@ -15,8 +20,8 @@ func (uc *UseCase) CreateUser(u entity.User) error {
 	return nil
 }
 
-func (uc *UseCase) UpdateUser(u entity.User) error {
-	err := uc.postgres.UpdateUserRepo(u)
+func (uc *UseCase) UpdateUser(id int, u entity.User) error {
+	err := uc.postgres.UpdateUserRepo(id, u)
 	if err != nil {
 		return fmt.Errorf("UserUseCase - UpdateUser - uc.repo.UpdateUser: %w", err)
 	}
@@ -24,8 +29,8 @@ func (uc *UseCase) UpdateUser(u entity.User) error {
 	return nil
 }
 
-func (uc *UseCase) DeleteUser(u entity.User) error {
-	err := uc.postgres.DeleteUserRepo(u)
+func (uc *UseCase) DeleteUser(id int) error {
+	err := uc.postgres.DeleteUserRepo(id)
 	if err != nil {
 		return fmt.Errorf("UserUseCase - DeleteUser - uc.repo.DeleteUser: %w", err)
 	}
@@ -33,8 +38,8 @@ func (uc *UseCase) DeleteUser(u entity.User) error {
 	return nil
 }
 
-func (uc *UseCase) GetUser(u entity.User) (entity.User, error) {
-	user, err := uc.postgres.GetUserRepo(u)
+func (uc *UseCase) GetUser(id int) (entity.User, error) {
+	user, err := uc.postgres.GetUserRepo(id)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("UserUseCase - GetUsers - uc.repo.GetUsers: %w", err)
 	}
@@ -49,4 +54,13 @@ func (uc *UseCase) GetUsers() ([]entity.User, error) {
 	}
 
 	return users, nil
+}
+
+func (uc *UseCase) GetUserByName(userName string) (entity.User, error) {
+	u, err := uc.postgres.GetUserByNameRepo(userName)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UseCase - GetUserByName - uc.repo.GetUserByNameRepo: %w", err)
+	}
+
+	return u, nil
 }

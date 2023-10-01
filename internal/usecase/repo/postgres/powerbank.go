@@ -5,27 +5,27 @@ import (
 	//"github.com/Miroshinsv/wcharge_back/pkg/postgres"
 )
 
-func (r *PostgresRepo) CreatePowerbankRepo(p entity.Powerbank) error {
+func (r *Repo) CreatePowerbankRepo(p entity.Powerbank) error {
 
 	return nil
 }
 
-func (r *PostgresRepo) UpdatePowerbankRepo(p entity.Powerbank) error {
+func (r *Repo) UpdatePowerbankRepo(id int, p entity.Powerbank) error {
 
 	return nil
 }
 
-func (r *PostgresRepo) DeletePowerbankRepo(p entity.Powerbank) error {
+func (r *Repo) DeletePowerbankRepo(id int) error {
 
 	return nil
 }
 
-func (r *PostgresRepo) GetPowerbankRepo(p entity.Powerbank) (entity.Powerbank, error) {
+func (r *Repo) GetPowerbankRepo(id int) (entity.Powerbank, error) {
 
 	return entity.Powerbank{}, nil
 }
 
-func (r *PostgresRepo) GetPowerbanksRepo() ([]entity.Powerbank, error) {
+func (r *Repo) GetPowerbanksRepo() ([]entity.Powerbank, error) {
 
 	return nil, nil
 }

@@ -17,36 +17,39 @@ type (
 
 type (
 	UserAPI interface {
+		Login(entity.UserLogin) error
 		CreateUser(entity.User) error
-		UpdateUser(entity.User) error
-		DeleteUser(entity.User) error
-		GetUser(entity.User) (entity.User, error)
+		UpdateUser(int, entity.User) error
+		DeleteUser(int) error
+		GetUser(int) (entity.User, error)
 		GetUsers() ([]entity.User, error)
+		GetUserByName(userName string) (entity.User, error)
 	}
 
 	UserRepo interface {
 		CreateUserRepo(entity.User) error
-		UpdateUserRepo(entity.User) error
-		DeleteUserRepo(entity.User) error
-		GetUserRepo(entity.User) (entity.User, error)
+		UpdateUserRepo(int, entity.User) error
+		DeleteUserRepo(int) error
+		GetUserRepo(int) (entity.User, error)
 		GetUsersRepo() ([]entity.User, error)
+		GetUserByNameRepo(userName string) (entity.User, error)
 	}
 )
 
 type (
 	StationAPI interface {
 		CreateStation(station entity.Station) error
-		UpdateStation(entity.Station) error
-		DeleteStation(entity.Station) error
-		GetStation(entity.Station) (entity.Station, error)
+		UpdateStation(int, entity.Station) error
+		DeleteStation(int) error
+		GetStation(int) (entity.Station, error)
 		GetStations() ([]entity.Station, error)
 	}
 
 	StationRepo interface {
 		CreateStationRepo(entity.Station) error
-		UpdateStationRepo(entity.Station) error
-		DeleteStationRepo(entity.Station) error
-		GetStationRepo(entity.Station) (entity.Station, error)
+		UpdateStationRepo(int, entity.Station) error
+		DeleteStationRepo(int) error
+		GetStationRepo(int) (entity.Station, error)
 		GetStationsRepo() ([]entity.Station, error)
 	}
 )
@@ -54,17 +57,17 @@ type (
 type (
 	PowerbankAPI interface {
 		CreatePowerbank(station entity.Powerbank) error
-		UpdatePowerbank(entity.Powerbank) error
-		DeletePowerbank(entity.Powerbank) error
-		GetPowerbank(entity.Powerbank) (entity.Powerbank, error)
+		UpdatePowerbank(int, entity.Powerbank) error
+		DeletePowerbank(int) error
+		GetPowerbank(int) (entity.Powerbank, error)
 		GetPowerbanks() ([]entity.Powerbank, error)
 	}
 
 	PowerbankRepo interface {
 		CreatePowerbankRepo(entity.Powerbank) error
-		UpdatePowerbankRepo(entity.Powerbank) error
-		DeletePowerbankRepo(entity.Powerbank) error
-		GetPowerbankRepo(entity.Powerbank) (entity.Powerbank, error)
+		UpdatePowerbankRepo(int, entity.Powerbank) error
+		DeletePowerbankRepo(int) error
+		GetPowerbankRepo(int) (entity.Powerbank, error)
 		GetPowerbanksRepo() ([]entity.Powerbank, error)
 	}
 )

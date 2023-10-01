@@ -1,14 +1,16 @@
 package entity
 
-import "time"
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
 type Station struct {
-	ID           int       `json:"id"`
-	SerialNumber string    `json:"serial_number"`
-	AddressId    int       `json:"address"`
-	Capacity     int       `json:"capacity"`
-	FreeCapacity int       `json:"free_capacity"`
-	CreateAt     time.Time `json:"create_at"`
-	UpdateAt     time.Time `json:"update_at"`
-	DeleteAt     time.Time `json:"delete_at"`
+	ID           int                `json:"id"`
+	SerialNumber string             `json:"serial_number"`
+	AddressId    int                `json:"address"`
+	Capacity     int                `json:"capacity"`
+	FreeCapacity int                `json:"free_capacity"`
+	CreateAt     pgtype.Timestamptz `json:"create_at"`
+	UpdateAt     pgtype.Timestamptz `json:"update_at"`
+	DeleteAt     pgtype.Timestamptz `json:"delete_at"`
 }

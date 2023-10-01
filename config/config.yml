@@ -4,6 +4,7 @@ app:
 
 http:
   port: '8080'
+  session_http_key: 'session_http_key'
 
 logger:
   log_level: 'debug'

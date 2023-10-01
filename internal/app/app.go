@@ -3,10 +3,6 @@ package app
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/Miroshinsv/wcharge_back/config"
 	v1 "github.com/Miroshinsv/wcharge_back/internal/controller/http/v1"
 
@@ -14,13 +10,8 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	repo "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/postgres"
 
-	//"github.com/Miroshinsv/wcharge_back/internal/usecase/webapi"
-	"github.com/Miroshinsv/wcharge_back/pkg/httpserver"
 	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/Miroshinsv/wcharge_back/pkg/postgres"
-
-	//"github.com/Miroshinsv/wcharge_back/pkg/rabbitmq/rmq_rpc/server"
-	"github.com/gorilla/mux"
 )
 
 // Run creates objects via constructors.
@@ -35,7 +26,7 @@ func Run(cfg *config.Config) {
 	defer pg.Close()
 
 	// Use case
-	UseCase := usecase.New(
+	useCase := usecase.New(
 		repo.New(pg),
 	)
 
@@ -50,31 +41,5 @@ func Run(cfg *config.Config) {
 	*/
 
 	// HTTP Server
-	handler := mux.NewRouter()
-	v1.NewRouter(handler, UseCase, l)
-	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
-
-	// Waiting signal
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	select {
-	case s := <-interrupt:
-		l.Info("app - Run - signal: " + s.String())
-	case err = <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
-		//case err = <-rmqServer.Notify():
-		//	l.Error(fmt.Errorf("app - Run - rmqServer.Notify: %w", err))
-	}
-
-	// Shutdown
-	err = httpServer.Shutdown()
-	if err != nil {
-		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
-	}
-
-	//err = rmqServer.Shutdown()
-	//if err != nil {
-	//	l.Error(fmt.Errorf("app - Run - rmqServer.Shutdown: %w", err))
-	//}
+	v1.Start(cfg, useCase, l)
 }

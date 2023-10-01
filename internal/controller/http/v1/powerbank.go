@@ -8,6 +8,7 @@ import (
 	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type powerbankRoutes struct {
@@ -18,11 +19,11 @@ type powerbankRoutes struct {
 func newPowerbankRoutes(router *mux.Router, p usecase.PowerbankAPI, l logger.Interface) {
 
 	sr := &powerbankRoutes{p, l}
-	router.HandleFunc("/api/powerbank/all", sr.GetPowerbankWebAPI).Methods("GET")               // Получить список всех Powerbank
-	router.HandleFunc("/api/powerbank/get/{id}", sr.GetPowerbankWebAPI).Methods("GET")          // Получить информацию о конкретном Powerbank
-	router.HandleFunc("/api/powerbank/create", sr.CreatePowerbankWebAPI).Methods("POST")        // Создать новогый Powerbank
-	router.HandleFunc("/api/powerbank/update/{id}", sr.UpdatePowerbankWebAPI).Methods("PUT")    // Обновить информацию о Powerbank
-	router.HandleFunc("/api/powerbank/delete/{id}", sr.DeletePowerbankWebAPI).Methods("DELETE") // Удалить Powerbank
+	router.HandleFunc("/api/powerbank/all", sr.GetPowerbankWebAPI).Methods(http.MethodGet)                      // Получить список всех Powerbank
+	router.HandleFunc("/api/powerbank/get/{id:[0-9]+}", sr.GetPowerbankWebAPI).Methods(http.MethodGet)          // Получить информацию о конкретном Powerbank
+	router.HandleFunc("/api/powerbank/create", sr.CreatePowerbankWebAPI).Methods(http.MethodPost)               // Создать новогый Powerbank
+	router.HandleFunc("/api/powerbank/update/{id:[0-9]+}", sr.UpdatePowerbankWebAPI).Methods(http.MethodPut)    // Обновить информацию о Powerbank
+	router.HandleFunc("/api/powerbank/delete/{id:[0-9]+}", sr.DeletePowerbankWebAPI).Methods(http.MethodDelete) // Удалить Powerbank
 }
 
 func RequestToJSONPowerbank(w http.ResponseWriter, r *http.Request) (entity.Powerbank, error) {
@@ -63,16 +64,14 @@ func (ur *powerbankRoutes) GetPowerbanksWebAPI(w http.ResponseWriter, r *http.Re
 }
 
 func (ur *powerbankRoutes) GetPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
-	s, err := RequestToJSONPowerbank(w, r)
-	/*id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
-		return
-	}*/
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
+		errorResponse(w, "error - GetUserWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
 		return
 	}
-	user, err := ur.p.GetPowerbank(s)
+
+	user, err := ur.p.GetPowerbank(id)
 	if err != nil {
 		errorResponse(w, "error - GetPowerbanksWebAPI - usecase.Powerbank.GetPowerbanks - "+err.Error(), http.StatusInternalServerError)
 		return
@@ -101,12 +100,18 @@ func (ur *powerbankRoutes) CreatePowerbankWebAPI(w http.ResponseWriter, r *http.
 }
 
 func (ur *powerbankRoutes) UpdatePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		errorResponse(w, "error - GetUserWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
+		return
+	}
 	s, err := RequestToJSONPowerbank(w, r)
 	if err != nil {
 		return
 	}
 
-	err = ur.p.UpdatePowerbank(s)
+	err = ur.p.UpdatePowerbank(id, s)
 	if err != nil {
 		errorResponse(w, "error - UpdatePowerbankWebAPI - usecase.Powerbank.UpdatePowerbank - "+err.Error(), http.StatusInternalServerError)
 		return
@@ -117,12 +122,14 @@ func (ur *powerbankRoutes) UpdatePowerbankWebAPI(w http.ResponseWriter, r *http.
 }
 
 func (ur *powerbankRoutes) DeletePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
-	s, err := RequestToJSONPowerbank(w, r)
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
+		errorResponse(w, "error - GetUserWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
 		return
 	}
 
-	user := ur.p.DeletePowerbank(s)
+	user := ur.p.DeletePowerbank(id)
 	if err != nil {
 		errorResponse(w, "error - GetPowerbanksWebAPI - usecase.Powerbank.GetPowerbanks - "+err.Error(), http.StatusInternalServerError)
 		return

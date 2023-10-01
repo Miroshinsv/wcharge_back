@@ -15,8 +15,8 @@ func (uc *UseCase) CreateStation(s entity.Station) error {
 	return nil
 }
 
-func (uc *UseCase) UpdateStation(s entity.Station) error {
-	err := uc.postgres.UpdateStationRepo(s)
+func (uc *UseCase) UpdateStation(id int, s entity.Station) error {
+	err := uc.postgres.UpdateStationRepo(id, s)
 	if err != nil {
 		return fmt.Errorf("UseCase - UpdateStation - uc.repo.UpdateStationRepo: %w", err)
 	}
@@ -24,8 +24,8 @@ func (uc *UseCase) UpdateStation(s entity.Station) error {
 	return nil
 }
 
-func (uc *UseCase) DeleteStation(s entity.Station) error {
-	err := uc.postgres.DeleteStationRepo(s)
+func (uc *UseCase) DeleteStation(id int) error {
+	err := uc.postgres.DeleteStationRepo(id)
 	if err != nil {
 		return fmt.Errorf("UseCase - DeleteStation - uc.repo.DeleteStationRepo: %w", err)
 	}
@@ -33,8 +33,8 @@ func (uc *UseCase) DeleteStation(s entity.Station) error {
 	return nil
 }
 
-func (uc *UseCase) GetStation(s entity.Station) (entity.Station, error) {
-	station, err := uc.postgres.GetStationRepo(s)
+func (uc *UseCase) GetStation(id int) (entity.Station, error) {
+	station, err := uc.postgres.GetStationRepo(id)
 	if err != nil {
 		return entity.Station{}, fmt.Errorf("UseCase - GetStation - uc.repo.GetStationRepo: %w", err)
 	}

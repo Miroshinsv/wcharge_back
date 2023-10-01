@@ -6,7 +6,7 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-func (r *PostgresRepo) GetRoleRepo(u entity.Role) (entity.Role, error) {
+func (r *Repo) GetRoleRepo(u entity.Role) (entity.Role, error) {
 	sql, _, err := r.Builder.
 		Select("id, role_name, priv").
 		From("postgres.public.tbl_role").

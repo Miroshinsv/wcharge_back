@@ -10,3 +10,6 @@
 *.out
 
 go.work
+
+go.mod
+

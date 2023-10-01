@@ -4,21 +4,19 @@ package v1
 import (
 	// Swagger docs.
 	_ "github.com/Miroshinsv/wcharge_back/docs"
-	"github.com/Miroshinsv/wcharge_back/internal/usecase"
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
-	"github.com/gorilla/mux"
 	"net/http"
 )
 
-// NewRouter -.
+// NewHttpRouter -.
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /v1
-func NewRouter(router *mux.Router, useCase *usecase.UseCase, l logger.Interface) {
-	router.HandleFunc("/", home).Methods("GET")
-	newUserRoutes(router, useCase, l)
-	newStationRoutes(router, useCase, l)
-	newPowerbankRoutes(router, useCase, l)
+func (s *server) NewHttpRouter() {
+	s.router.HandleFunc("/", home)
+
+	s.newUserRoutes()
+	newStationRoutes(s.router, s.useCase, s.logger)
+	newPowerbankRoutes(s.router, s.useCase, s.logger)
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
