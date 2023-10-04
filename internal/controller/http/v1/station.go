@@ -2,156 +2,129 @@ package v1
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	"github.com/Miroshinsv/wcharge_back/internal/usecase"
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
-type stationRoutes struct {
-	s usecase.StationAPI
-	l logger.Interface
+func (s *server) newStationRoutes() {
+	s.router.HandleFunc("/api/station/all", s.GetStationWebAPI).Methods(http.MethodGet)                      // Получить список всех пользователей
+	s.router.HandleFunc("/api/station/get/{id:[0-9]+}", s.GetStationWebAPI).Methods(http.MethodGet)          // Получить информацию о конкретном пользователе
+	s.router.HandleFunc("/api/station/create", s.CreateStationWebAPI()).Methods(http.MethodPost)             // Создать нового пользователя
+	s.router.HandleFunc("/api/station/update/{id:[0-9]+}", s.UpdateStationWebAPI()).Methods(http.MethodPut)  // Обновить информацию о пользователе
+	s.router.HandleFunc("/api/station/delete/{id:[0-9]+}", s.DeleteStationWebAPI).Methods(http.MethodDelete) // Удалить пользователя
 }
 
-func newStationRoutes(router *mux.Router, s usecase.StationAPI, l logger.Interface) {
-
-	sr := &stationRoutes{s, l}
-	router.HandleFunc("/api/station/all", sr.GetStationWebAPI).Methods("GET")                      // Получить список всех пользователей
-	router.HandleFunc("/api/station/get/{id:[0-9]+}", sr.GetStationWebAPI).Methods("GET")          // Получить информацию о конкретном пользователе
-	router.HandleFunc("/api/station/create", sr.CreateStationWebAPI).Methods("POST")               // Создать нового пользователя
-	router.HandleFunc("/api/station/update/{id:[0-9]+}", sr.UpdateStationWebAPI).Methods("PUT")    // Обновить информацию о пользователе
-	router.HandleFunc("/api/station/delete/{id:[0-9]+}", sr.DeleteStationWebAPI).Methods("DELETE") // Удалить пользователя
-}
-
-func RequestToJSONStation(w http.ResponseWriter, r *http.Request) (entity.Station, error) {
-	headerContentType := r.Header.Get("Content-Type")
-	if headerContentType != "application/json" {
-		errorResponse(w, "Content Type is not application/json", http.StatusUnsupportedMediaType)
-		return entity.Station{}, errors.New("Content Type is not application/json")
-	}
-	var s entity.Station
-	var unmarshalErr *json.UnmarshalTypeError
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&s)
+func (s *server) GetStationsWebAPI(w http.ResponseWriter, r *http.Request) {
+	stations, err := s.useCase.GetStations()
 	if err != nil {
-		if errors.As(err, &unmarshalErr) {
-			errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
-		} else {
-			errorResponse(w, "Bad Request "+err.Error(), http.StatusBadRequest)
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	s.respond(w, r, http.StatusOK, stations)
+}
+
+func (s *server) GetStationWebAPI(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err != nil {
+		return
+	}
+	st, err := s.useCase.GetStation(id)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	s.respond(w, r, http.StatusOK, st)
+}
+
+func (s *server) CreateStationWebAPI() http.HandlerFunc {
+	type request struct {
+		SerialNumber string `json:"serial_number"`
+		AddressId    int    `json:"address"`
+		Capacity     int    `json:"capacity"`
+		FreeCapacity int    `json:"free_capacity"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("userRoutes - Login - "+err.Error()))
+			return
 		}
-		return entity.Station{}, errors.New("Bad Request - entity is not User")
-	}
+		st := entity.Station{
+			SerialNumber: req.SerialNumber,
+			AddressId:    req.AddressId,
+			Capacity:     req.Capacity,
+			FreeCapacity: req.FreeCapacity,
+		}
 
-	return s, nil
-}
+		err := s.useCase.CreateStation(st)
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - CreateStationWebAPI - usecase.CreateStation - "+err.Error()))
+			return
+		}
 
-func (ur *stationRoutes) GetStationsWebAPI(w http.ResponseWriter, r *http.Request) {
-	stations, err := ur.s.GetStations()
-	if err != nil {
-		errorResponse(w, "error - GetStationsWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(stations)
-	if err != nil {
-		errorResponse(w, "error - GetStationsWebAPI - json.NewEncoder(w).Encode(user) - "+err.Error(), 0)
-		return
+		s.respond(w, r, http.StatusOK, "")
 	}
 }
 
-func (ur *stationRoutes) GetStationWebAPI(w http.ResponseWriter, r *http.Request) {
+func (s *server) UpdateStationWebAPI() http.HandlerFunc {
+	type request struct {
+		AddressId    int `json:"address"`
+		FreeCapacity int `json:"free_capacity"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - UpdateStationWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error()))
+			return
+		}
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("userRoutes - Login - "+err.Error()))
+			return
+		}
+		st := entity.Station{
+			ID:           id,
+			AddressId:    req.AddressId,
+			FreeCapacity: req.FreeCapacity,
+		}
+
+		err = s.useCase.UpdateStation(id, st)
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - CreateStationWebAPI - usecase.CreateStation - "+err.Error()))
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, "")
+	}
+}
+
+func (s *server) DeleteStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		errorResponse(w, "error - GetStationWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - DeleteStationWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error()))
 		return
 	}
 
+	err = s.useCase.DeleteStation(id)
 	if err != nil {
-		return
-	}
-	user, err := ur.s.GetStation(id)
-	if err != nil {
-		errorResponse(w, "error - GetStationWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - DeleteStationWebAPI - usecase.User.GetUsers - "+err.Error()))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(user)
-	if err != nil {
-		errorResponse(w, "error - GetStationWebAPI - json.NewEncoder(w).Encode(user) - "+err.Error(), 0)
-		return
-	}
-}
-
-func (ur *stationRoutes) CreateStationWebAPI(w http.ResponseWriter, r *http.Request) {
-	s, err := RequestToJSONStation(w, r)
-	if err != nil {
-		return
-	}
-
-	err = ur.s.CreateStation(s)
-	if err != nil {
-		errorResponse(w, "error - CreateStationWebAPI - usecase.User.CreateUser - "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-}
-
-func (ur *stationRoutes) UpdateStationWebAPI(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		errorResponse(w, "error - UpdateStationWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
-		return
-	}
-
-	s, err := RequestToJSONStation(w, r)
-	if err != nil {
-		return
-	}
-
-	err = ur.s.UpdateStation(id, s)
-	if err != nil {
-		errorResponse(w, "error - UpdateStationWebAPI - usecase.User.UpdateUser - "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-}
-
-func (ur *stationRoutes) DeleteStationWebAPI(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		errorResponse(w, "error - DeleteStationWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error(), 0)
-		return
-	}
-
-	user := ur.s.DeleteStation(id)
-	if err != nil {
-		errorResponse(w, "error - DeleteStationWebAPI - usecase.User.GetUsers - "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err = json.NewEncoder(w).Encode(user)
-	if err != nil {
-		errorResponse(w, "error - DeleteStationWebAPI - json.NewEncoder(w).Encode(user) - "+err.Error(), 0)
-		return
-	}
+	s.respond(w, r, http.StatusOK, "")
 }

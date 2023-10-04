@@ -65,6 +65,7 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rs/zerolog v1.30.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/streadway/amqp v1.1.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
