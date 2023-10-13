@@ -3,6 +3,7 @@ package entity
 import (
 	"crypto/rand"
 	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
@@ -17,18 +18,21 @@ type UserLogin struct {
 }
 
 type User struct {
-	ID           int                `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	RoleID       int                `json:"role"`
-	AddressID    int                `json:"address_id"`
-	Password     string             `json:"password,omitempty"`
-	PasswordHash string             `json:"-"`
-	PasswordSalt string             `json:"-"`
-	SuspendedAt  pgtype.Timestamptz `json:"suspended_at"`
-	CreateAt     pgtype.Timestamptz `json:"create_at"`
-	UpdateAt     pgtype.Timestamptz `json:"update_at"`
-	DeleteAt     pgtype.Timestamptz `json:"delete_at"`
+	ID             int                `json:"id"`
+	Username       string             `json:"username"`
+	Email          string             `json:"email"`
+	Phone          string             `json:"phone"`
+	RoleID         int                `json:"role"`
+	RoleName       string             `json:"role_name"`
+	RolePrivileges int                `json:"-"`
+	AddressID      int                `json:"address_id"`
+	Password       string             `json:"password,omitempty"`
+	PasswordHash   string             `json:"-"`
+	PasswordSalt   string             `json:"-"`
+	SuspendedAt    pgtype.Timestamptz `json:"suspended_at"`
+	CreateAt       pgtype.Timestamptz `json:"create_at"`
+	UpdateAt       pgtype.Timestamptz `json:"update_at"`
+	DeleteAt       pgtype.Timestamptz `json:"delete_at"`
 }
 
 func (u *User) BeforeCreate() error {
@@ -64,22 +68,26 @@ func generateSalt(secret string) (string, error) {
 	hash := sha1.New()
 	hash.Write(buf)
 	hash.Write(secretB)
-	return string(hash.Sum(buf)), nil
+	salt := base64.StdEncoding.EncodeToString(hash.Sum(buf))
+	return salt, nil
 }
 
 func (u *User) ComparePassword(password string) bool {
-	password = password + u.PasswordSalt
-	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+	bSalt, _ := base64.StdEncoding.DecodeString(u.PasswordSalt)
+	bPassword := append([]byte(password), bSalt...)
+	bPasswordHash, _ := base64.StdEncoding.DecodeString(u.PasswordHash)
+	err := bcrypt.CompareHashAndPassword(bPasswordHash, bPassword)
 	return err == nil
 
 }
 
 func encryptString(s string, salt string) (string, error) {
-	s = s + salt
-	b, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
+	bSalt, _ := base64.StdEncoding.DecodeString(salt)
+	ss := append([]byte(s), bSalt...)
+	b, err := bcrypt.GenerateFromPassword(ss, bcrypt.MinCost)
 	if err != nil {
 		return "", err
 	}
-
-	return string(b), nil
+	pass := base64.StdEncoding.EncodeToString(b)
+	return pass, nil
 }

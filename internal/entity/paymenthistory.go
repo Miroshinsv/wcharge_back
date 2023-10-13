@@ -1,6 +1,6 @@
 package entity
 
-// Тут пока вопросы
+// PaymentHistory ...
 type PaymentHistory struct {
 	ID          int     `json:"id"`
 	UserID      int     `json:"userId"`

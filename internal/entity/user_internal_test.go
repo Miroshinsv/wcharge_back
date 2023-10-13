@@ -40,7 +40,6 @@ func TestUser_ComparePassword(t *testing.T) {
 			err := u.BeforeCreate()
 			if err != nil {
 				t.Errorf("BeforeCreate " + err.Error())
-
 			}
 			assert.Equal(t, tc.rez, u.ComparePassword(tc.payload["password"]))
 		})
