@@ -36,7 +36,7 @@ func (uc *UseCase) DeletePowerbank(id int) error {
 func (uc *UseCase) GetPowerbank(id int) (entity.Powerbank, error) {
 	powerbank, err := uc.postgres.GetPowerbankRepo(id)
 	if err != nil {
-		return entity.Powerbank{}, fmt.Errorf("UseCase - GetStation - uc.repo.GetStationRepo: %w", err)
+		return entity.Powerbank{}, fmt.Errorf("GetPowerbank - uc.repo.GetStationRepo: %w", err)
 	}
 
 	return powerbank, nil

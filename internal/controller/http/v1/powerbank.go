@@ -4,25 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	"github.com/Miroshinsv/wcharge_back/internal/usecase"
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
-func (s *server) newPowerbankRoutes(router *mux.Router, p usecase.PowerbankAPI, l logger.Interface) {
-	s.router.HandleFunc("/api/powerbank/all", s.GetPowerbankWebAPI).Methods(http.MethodGet)                      // Получить список всех Powerbank
-	s.router.HandleFunc("/api/powerbank/get/{id:[0-9]+}", s.GetPowerbankWebAPI).Methods(http.MethodGet)          // Получить информацию о конкретном Powerbank
-	s.router.HandleFunc("/api/powerbank/create", s.CreatePowerbankWebAPI()).Methods(http.MethodPost)             // Создать новогый Powerbank
-	s.router.HandleFunc("/api/powerbank/update/{id:[0-9]+}", s.UpdatePowerbankWebAPI()).Methods(http.MethodPut)  // Обновить информацию о Powerbank
-	s.router.HandleFunc("/api/powerbank/delete/{id:[0-9]+}", s.DeletePowerbankWebAPI).Methods(http.MethodDelete) // Удалить Powerbank
+func (s *server) newPowerbankRoutes() {
+	s.apiRouter.HandleFunc("/powerbank/all", s.GetPowerbanksWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/powerbank/get/{id:[0-9]+}", s.GetPowerbankWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/powerbank/create", s.CreatePowerbankWebAPI()).Methods(http.MethodPost)
+	s.apiRouter.HandleFunc("/powerbank/update/{id:[0-9]+}", s.UpdatePowerbankWebAPI()).Methods(http.MethodPut)
+	s.apiRouter.HandleFunc("/powerbank/delete/{id:[0-9]+}", s.DeletePowerbankWebAPI).Methods(http.MethodDelete)
 }
 
 func (s *server) GetPowerbanksWebAPI(w http.ResponseWriter, r *http.Request) {
 	powerbanks, err := s.useCase.GetPowerbanks()
 	if err != nil {
-		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - GetPowerbanksWebAPI - usecase.Powerbank.GetPowerbanks - "+err.Error()))
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetPowerbanksWebAPI - useCase.GetPowerbanks() - %w", err))
 		return
 	}
 
@@ -33,13 +31,13 @@ func (s *server) GetPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - GetUserWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error()))
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetPowerbankWebAPI - strconv.Atoi(vars[\"id\"]) - %w", err))
 		return
 	}
 
 	p, err := s.useCase.GetPowerbank(id)
 	if err != nil {
-		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - GetPowerbanksWebAPI - usecase.Powerbank.GetPowerbanks - "+err.Error()))
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetPowerbankWebAPI - s.useCase.GetPowerbank(id) - %w", err))
 		return
 	}
 
@@ -48,26 +46,30 @@ func (s *server) GetPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) CreatePowerbankWebAPI() http.HandlerFunc {
 	type request struct {
-		Used int `json:"used"` // сколько уже использована банка в часах
+		SerialNumber string `json:"serial_number"`
+		Capacity     int    `json:"capacity"` // объем заряда
+		Used         int    `json:"used"`     // сколько уже использована банка в часах
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreatePowerbankWebAPI - "+err.Error()))
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreatePowerbankWebAPI - %w", err))
 			return
 		}
 		p := entity.Powerbank{
-			Used: req.Used,
+			SerialNumber: req.SerialNumber,
+			Capacity:     req.Capacity,
+			Used:         req.Used,
 		}
 
 		err := s.useCase.CreatePowerbank(p)
 		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - CreatePowerbankWebAPI - usecase.Powerbank.CreatePowerbank - "+err.Error()))
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("CreatePowerbankWebAPI - useCase.CreatePowerbank - %w", err))
 			return
 		}
 
-		s.respond(w, r, http.StatusOK, "")
+		s.respond(w, r, http.StatusOK, nil)
 	}
 }
 
@@ -80,13 +82,13 @@ func (s *server) UpdatePowerbankWebAPI() http.HandlerFunc {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - UpdatePowerbankWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error()))
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdatePowerbankWebAPI - strconv.Atoi(vars[\"id\"]) - %w", err))
 			return
 		}
 
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreatePowerbankWebAPI - "+err.Error()))
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreatePowerbankWebAPI - %w", err))
 			return
 		}
 		p := entity.Powerbank{
@@ -95,11 +97,11 @@ func (s *server) UpdatePowerbankWebAPI() http.HandlerFunc {
 
 		err = s.useCase.UpdatePowerbank(id, p)
 		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - UpdatePowerbankWebAPI - usecase.Powerbank.UpdatePowerbank - "+err.Error()))
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdatePowerbankWebAPI - usecase.UpdatePowerbank - %w", err))
 			return
 		}
 
-		s.respond(w, r, http.StatusOK, "")
+		s.respond(w, r, http.StatusOK, nil)
 	}
 
 }
@@ -108,15 +110,15 @@ func (s *server) DeletePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - DeletePowerbankWebAPI - strconv.Atoi(vars[\"id\"]) - "+err.Error()))
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("DeletePowerbankWebAPI - strconv.Atoi(vars[\"id\"]) - %w", err))
 		return
 	}
 
 	err = s.useCase.DeletePowerbank(id)
 	if err != nil {
-		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("error - DeletePowerbankWebAPI - usecase.Powerbank.DeletePowerbank - "+err.Error()))
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("DeletePowerbankWebAPI - usecase.Powerbank.DeletePowerbank - %w", err))
 		return
 	}
 
-	s.respond(w, r, http.StatusOK, "")
+	s.respond(w, r, http.StatusOK, nil)
 }
