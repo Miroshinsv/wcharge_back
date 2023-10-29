@@ -11,6 +11,8 @@ CREATE TABLE tbl_addresses (
     lng FLOAT NOT NULL
 );
 
+insert into tbl_addresses (country, city, address, lat, lng) VALUES ('Example', 'Example', 'Example', 1.0, 1.0);
+
 -- таблца ролей
 CREATE TABLE tbl_role (
     id serial PRIMARY KEY,
@@ -31,7 +33,7 @@ CREATE TABLE tbl_users (
     phone VARCHAR(255) DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
     password_salt VARCHAR(255) NOT NULL,
-    address_id INT DEFAULT NULL,
+    address_id INT DEFAULT 1,
     removed INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -39,6 +41,14 @@ CREATE TABLE tbl_users (
     FOREIGN KEY (role_id) REFERENCES tbl_role (id) ON DELETE SET DEFAULT,
     FOREIGN KEY (address_id) REFERENCES tbl_addresses (id) ON DELETE SET DEFAULT
 );
+
+-- admin admin
+insert into tbl_users (username, email, role_id, password_hash, password_salt)
+values ('admin', 'admin@mail.com', 1, 'JDJhJDA0JEVqeGpML3Z2T25QT2YvTXNUcEw2RC4vZ2hzZHRDcGdmdHVnZ0hkWHVvclRTanpwbDVFOUJL', 'lXpk1n+I9Xh0kRz8djIBCrOXYj8tvxZbn4J7xgyZ+mIWH51W69Sn/xoE3wlJCdAeuklIow==');
+
+-- user user
+insert into tbl_users (username, email, role_id, password_hash, password_salt)
+values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3SnhYYXpKbnVIV0tpV1liRnEzSnV2ZzZ2MDV6NEd5', 'kdFEO7zJJy94rKcAQhLAcOYxZ5lIb9FUXHJ2A2zEpDkGR+4hHrNOPgWHUvcn+SZUODeEhQ==');
 
 -- Таблица заказов
 --CREATE TABLE orders (
@@ -66,7 +76,7 @@ CREATE TABLE tbl_powerbanks (
 CREATE TABLE tbl_stations (
     id serial PRIMARY KEY,
     serial_number VARCHAR(255) NOT NULL,
-    address_id INT DEFAULT NULL,
+    address_id INT DEFAULT 1,
     capacity INT NULL NULL,
     free_capacity INT NULL NULL,
     removed INT DEFAULT 0,
@@ -91,10 +101,11 @@ CREATE TABLE tbl_user_powerbank (
     id serial PRIMARY KEY,
     user_id INT NOT NULL,
     powerbank_id INT NOT NULL,
+    station_id INT NOT NULL,
     created_ad TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES tbl_users (id) ON DELETE CASCADE,
-    FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE
+    FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE,
+    FOREIGN KEY (station_id) REFERENCES tbl_stations (id) ON DELETE NO ACTION
 );
 
 -- Триггеры на update
@@ -120,4 +131,34 @@ CREATE TRIGGER set_timestamp_update_stations
     BEFORE UPDATE ON tbl_stations
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp_update();
+
+-- Триггеры на update - при установки поля remote
+CREATE OR REPLACE FUNCTION trigger_set_timestamp_delete()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.removed = 1 AND OLD.removed = 0 THEN
+        NEW.deleted_at = NOW();
+    END IF;
+    IF NEW.removed = 0 AND OLD.removed = 1 THEN
+        NEW.deleted_at = NULL;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER set_timestamp_delete_powerbank
+    BEFORE UPDATE OF removed ON tbl_powerbanks
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp_delete();
+
+CREATE TRIGGER set_timestamp_delete_station
+    BEFORE UPDATE OF removed ON tbl_stations
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp_delete();
+
+CREATE TRIGGER set_timestamp_delete_user
+    BEFORE UPDATE OF removed ON tbl_users
+    FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp_delete();
 
