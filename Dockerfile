@@ -2,7 +2,7 @@
 FROM golang:1.17.1-alpine3.14 as modules
 COPY go.mod go.sum /modules/
 WORKDIR /modules
-RUN go get
+RUN go mod download
 
 # Step 2: Builder
 FROM golang:1.17.1-alpine3.14 as builder
