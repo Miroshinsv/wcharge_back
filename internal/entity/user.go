@@ -18,21 +18,22 @@ type UserLogin struct {
 }
 
 type User struct {
-	ID             int                `json:"id"`
-	Username       string             `json:"username"`
-	Email          string             `json:"email"`
-	Phone          string             `json:"phone"`
-	RoleID         int                `json:"role"`
-	RoleName       string             `json:"role_name"`
-	RolePrivileges int                `json:"-"`
-	AddressID      int                `json:"address_id"`
-	Password       string             `json:"password,omitempty"`
-	PasswordHash   string             `json:"-"`
-	PasswordSalt   string             `json:"-"`
-	SuspendedAt    pgtype.Timestamptz `json:"suspended_at"`
-	CreateAt       pgtype.Timestamptz `json:"create_at"`
-	UpdateAt       pgtype.Timestamptz `json:"update_at"`
-	DeleteAt       pgtype.Timestamptz `json:"delete_at"`
+	ID             int    `json:"id"`
+	Username       string `json:"username"`
+	Email          string `json:"email"`
+	Phone          string `json:"phone"`
+	RoleID         int    `json:"role"`
+	RoleName       string `json:"role_name"`
+	RolePrivileges int    `json:"-"`
+	AddressID      int    `json:"address_id"`
+	Password       string `json:"password,omitempty"`
+	PasswordHash   string `json:"-"`
+	PasswordSalt   string `json:"-"`
+	Removed        int    `json:"removed"`
+	//SuspendedAt    pgtype.Timestamptz `json:"suspended_at"`
+	CreateAt pgtype.Timestamptz `json:"create_at"`
+	UpdateAt pgtype.Timestamptz `json:"update_at"`
+	DeleteAt pgtype.Timestamptz `json:"delete_at"`
 }
 
 func (u *User) BeforeCreate() error {

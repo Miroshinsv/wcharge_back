@@ -6,11 +6,6 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-func (uc *UseCase) Login(l entity.UserLogin) error {
-
-	return nil
-}
-
 func (uc *UseCase) CreateUser(u entity.User) error {
 	err := uc.postgres.CreateUserRepo(u)
 	if err != nil {

@@ -30,7 +30,7 @@ CREATE TABLE tbl_users (
     username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     role_id INT DEFAULT 3,
-    phone VARCHAR(255) DEFAULT NULL,
+    phone VARCHAR(255) DEFAULT '',
     password_hash VARCHAR(255) NOT NULL,
     password_salt VARCHAR(255) NOT NULL,
     address_id INT DEFAULT 1,

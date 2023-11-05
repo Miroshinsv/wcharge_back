@@ -45,8 +45,17 @@ func (uc *UseCase) GetStation(id int) (entity.Station, error) {
 func (uc *UseCase) GetStations() ([]entity.Station, error) {
 	stations, err := uc.postgres.GetStationsRepo()
 	if err != nil {
-		return nil, fmt.Errorf("UseCase - GetStations - uc.repo.GetStationsRepo: %w", err)
+		return nil, fmt.Errorf("UseCase - GetStations - : %w", err)
 	}
 
 	return stations, nil
+}
+
+func (uc *UseCase) GetAllPowerbanksInStation(id int) ([]entity.Powerbank, error) {
+	powerbanks, err := uc.postgres.GetAllPowerbanksInStationRepo(id)
+	if err != nil {
+		return nil, fmt.Errorf("UseCase - GetAllPowerbanksInStation - %w", err)
+	}
+
+	return powerbanks, nil
 }

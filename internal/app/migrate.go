@@ -20,7 +20,7 @@ const (
 
 func init() {
 	/*
-		databaseURL, ok := os.LookupEnv("postgres://user:pass@localhost:5432/postgres") //os.LookupEnv("PG_URL")
+		databaseURL, ok := os.LookupEnv("PG_URL")
 		if !ok || len(databaseURL) == 0 {
 			log.Fatalf("migrate: environment variable not declared: PG_URL")
 		}
@@ -35,7 +35,7 @@ func init() {
 	)
 
 	for attempts > 0 {
-		m, err = migrate.New("file://migrations", databaseURL)
+		m, err = migrate.New("file://migration", databaseURL)
 		if err == nil {
 			break
 		}

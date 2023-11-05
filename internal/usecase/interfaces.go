@@ -111,11 +111,13 @@ type (
 		GetUserPowerbanks(userId int) ([]entity.Powerbank, error) // all user's powerbanks
 		TakePowerbank(userId int, powerbankId int, stationId int) error
 		PutPowerbank(userId int, powerbankId int, stationId int) error
+		AddPowerbankToStation(powerbankId int, stationId int) error
 	}
 
 	UserActionRepo interface {
 		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
 		TakePowerbankRepo(userId int, powerbankId int, stationId int) error
 		PutPowerbankRepo(userId int, powerbankId int, stationId int) error
+		AddPowerbankToStationRepo(powerbankId int, stationId int) error
 	}
 )
