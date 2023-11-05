@@ -1,16 +1,13 @@
 package v1
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Miroshinsv/wcharge_back/config"
-	"github.com/Miroshinsv/wcharge_back/internal/entity"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	"github.com/Miroshinsv/wcharge_back/pkg/httpserver"
 	"github.com/Miroshinsv/wcharge_back/pkg/logger"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"net/http"
@@ -20,7 +17,7 @@ import (
 )
 
 const (
-	sessionName        = "wcharge"
+	sessionName        = "wcharge" // в конфиге, а там из env
 	ctxKeyUser  ctxKey = iota
 	ctxKeyRequestID
 )
@@ -34,6 +31,7 @@ type ctxKey int8
 
 type server struct {
 	router       *mux.Router
+	apiRouter    *mux.Router
 	useCase      *usecase.UseCase
 	sessionStore sessions.Store
 	logger       logger.Interface
@@ -70,50 +68,6 @@ func Start(cfg *config.Config, u *usecase.UseCase, l logger.Interface) {
 	err := httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
-	}
-}
-
-func (s *server) setRequestID(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := uuid.New().String()
-		w.Header().Set("X-Request-ID", id)
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyRequestID, id)))
-	})
-}
-
-func (s *server) logRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Info("started %s %s", r.Method, r.RequestURI)
-	})
-}
-
-func (s *server) authenticateUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := s.sessionStore.Get(r, sessionName)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
-		}
-
-		id, ok := session.Values["user_id"]
-		if !ok {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
-			return
-		}
-
-		u, err := s.useCase.GetUser(id.(int))
-		if err != nil {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
-			return
-		}
-
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
-	})
-}
-
-func (s *server) handleWhoAmI() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*entity.User))
 	}
 }
 

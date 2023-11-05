@@ -12,12 +12,14 @@ type (
 		UserRepo
 		StationRepo
 		PowerbankRepo
+		AddressRepo
+		RoleRepo
+		UserActionRepo
 	}
 )
 
 type (
 	UserAPI interface {
-		Login(entity.UserLogin) error
 		CreateUser(entity.User) error
 		UpdateUser(int, entity.User) error
 		DeleteUser(int) error
@@ -43,6 +45,7 @@ type (
 		DeleteStation(int) error
 		GetStation(int) (entity.Station, error)
 		GetStations() ([]entity.Station, error)
+		GetAllPowerbanksInStation(int) ([]entity.Powerbank, error)
 	}
 
 	StationRepo interface {
@@ -51,6 +54,7 @@ type (
 		DeleteStationRepo(int) error
 		GetStationRepo(int) (entity.Station, error)
 		GetStationsRepo() ([]entity.Station, error)
+		GetAllPowerbanksInStationRepo(int) ([]entity.Powerbank, error)
 	}
 )
 
@@ -69,5 +73,49 @@ type (
 		DeletePowerbankRepo(int) error
 		GetPowerbankRepo(int) (entity.Powerbank, error)
 		GetPowerbanksRepo() ([]entity.Powerbank, error)
+	}
+)
+
+type (
+	AddressAPI interface {
+		CreateAddress(station entity.Address) error
+		UpdateAddress(int, entity.Address) error
+		DeleteAddress(int) error
+		GetAddress(int) (entity.Address, error)
+		GetAddresses() ([]entity.Address, error)
+	}
+
+	AddressRepo interface {
+		CreateAddressRepo(entity.Address) error
+		UpdateAddressRepo(int, entity.Address) error
+		DeleteAddressRepo(int) error
+		GetAddressRepo(int) (entity.Address, error)
+		GetAddressesRepo() ([]entity.Address, error)
+	}
+)
+
+type (
+	RoleAPI interface {
+		GetRole(int) (entity.Role, error)
+		GetRoles() ([]entity.Role, error)
+	}
+
+	RoleRepo interface {
+		GetRoleRepo(int) (entity.Role, error)
+		GetRolesRepo() ([]entity.Role, error)
+	}
+)
+
+type (
+	UserActionAPI interface {
+		GetUserPowerbanks(userId int) ([]entity.Powerbank, error) // all user's powerbanks
+		TakePowerbank(userId int, powerbankId int, stationId int) error
+		PutPowerbank(userId int, powerbankId int, stationId int) error
+	}
+
+	UserActionRepo interface {
+		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
+		TakePowerbankRepo(userId int, powerbankId int, stationId int) error
+		PutPowerbankRepo(userId int, powerbankId int, stationId int) error
 	}
 )

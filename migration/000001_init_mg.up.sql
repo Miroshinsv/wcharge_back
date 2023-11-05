@@ -92,7 +92,6 @@ CREATE TABLE tbl_station_powerbank (
     station_id INT NOT NULL,
     powerbank_id INT NOT NULL,
     created_ad TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ DEFAULT NULL,
     FOREIGN KEY (station_id) REFERENCES tbl_stations (id) ON DELETE CASCADE,
     FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE
 );
@@ -101,11 +100,9 @@ CREATE TABLE tbl_user_powerbank (
     id serial PRIMARY KEY,
     user_id INT NOT NULL,
     powerbank_id INT NOT NULL,
-    station_id INT NOT NULL,
     created_ad TIMESTAMPTZ DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES tbl_users (id) ON DELETE CASCADE,
     FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE,
-    FOREIGN KEY (station_id) REFERENCES tbl_stations (id) ON DELETE NO ACTION
 );
 
 -- Триггеры на update
