@@ -18,7 +18,7 @@ RUN apk update && \
 WORKDIR /opt
 
 COPY --from=builder /opt/application ./
-# COPY --from=builder /opt/migration/* ./migration
-# COPY --from=builder /opt/config/* ./config
+COPY --from=builder /opt/migration/* ./migration
+COPY --from=builder /opt/config/* ./config
 
 CMD ["./application"]
