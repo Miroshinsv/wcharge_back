@@ -1,7 +1,7 @@
 version: '3.9'
 services:
-
   postgres:
+    #restart: always
     container_name: postgres
     image: postgres
     volumes:
@@ -21,26 +21,23 @@ services:
       - 15672:15672
 
   app:
-    build: .
-    container_name: app
-    image: app
+    image: lexlutter/wcharge-backend:0.0.1
+    container_name: wcharge-backend
     environment:
       PG_URL: 'postgres://user:pass@postgres:5432/postgres'
       RMQ_URL: 'amqp://guest:guest@rabbitmq:5672/'
+      APP_NAME: 'wecharge-back'
+      APP_VERSION: '0.0.1'
+      HTTP_PORT: '8080'
+      PG_POOL_MAX: 8
+      DISABLE_SWAGGER_HTTP_HANDLER: true
+      SESSION_HTTP_KEY: session_http_key
+      LOG_LEVEL: debug
     ports:
       - 8080:8080
     depends_on:
       - postgres
       - rabbitmq
-
-  integration:
-    build:
-      context: .
-      dockerfile: integration-test/Dockerfile
-    container_name: integration
-    image: integration
-    depends_on:
-      - app
 
 volumes:
   pg-data:

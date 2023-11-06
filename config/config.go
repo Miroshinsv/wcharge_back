@@ -53,7 +53,7 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		//return nil, fmt.Errorf("config error: %w", err)
 	}
-	cfg.PG.URL = "postgres://user:pass@localhost:5432/postgres"
+	// cfg.PG.URL = "postgres://user:pass@localhost:5432/postgres"
 	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
 		return nil, err
