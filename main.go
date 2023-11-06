@@ -1,10 +1,9 @@
 package main
 
 import (
-	"log"
-
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/internal/app"
+	"log"
 )
 
 func main() {
