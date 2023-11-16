@@ -5,11 +5,12 @@ RUN apk update && \
 
 WORKDIR /opt
 
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
-
+# COPY go.mod go.sum ./
 COPY . .
-RUN go build -o /opt/application .
+RUN go mod download && go mod verify
+RUN go build -tags migrate -o /opt/wcharge_back_migrate
+RUN go build -o /opt/wcharge_back
+
 
 FROM alpine:3.18 AS production
 RUN apk update && \
@@ -17,8 +18,13 @@ RUN apk update && \
 
 WORKDIR /opt
 
-COPY --from=builder /opt/application ./
-COPY --from=builder /opt/migration/* ./migration
+COPY --from=builder /opt/wcharge_back ./
+COPY --from=builder /opt/wcharge_back_migrate ./
+COPY ./migration/* ./migration/
 COPY --from=builder /opt/config/* ./config
 
-CMD ["./application"]
+COPY run.sh .
+RUN chmod +x run.sh
+RUN echo 0 > migrate_flag
+
+CMD ["./run.sh"]

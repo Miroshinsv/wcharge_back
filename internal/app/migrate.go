@@ -5,6 +5,7 @@ package app
 import (
 	"errors"
 	"log"
+	"os"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -19,13 +20,11 @@ const (
 )
 
 func init() {
-	/*
-		databaseURL, ok := os.LookupEnv("PG_URL")
-		if !ok || len(databaseURL) == 0 {
-			log.Fatalf("migrate: environment variable not declared: PG_URL")
-		}
-	*/
-	databaseURL := "postgres://user:pass@localhost:5432/postgres"
+	databaseURL, ok := os.LookupEnv("PG_URL")
+	if !ok || len(databaseURL) == 0 {
+		log.Fatalf("migrate: environment variable not declared: PG_URL")
+	}
+	//databaseURL := "postgres://user:pass@localhost:5432/postgres"
 	databaseURL += "?sslmode=disable"
 
 	var (

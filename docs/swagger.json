@@ -1,10 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {},
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/v1",
     "paths": {}
 }

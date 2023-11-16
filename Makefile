@@ -34,7 +34,7 @@ run0: swag-v1 ### swag run
 .PHONY: run0
 
 run:
-	go run ./cmd/app
+	go run -tags migrate main.go
 .PHONY: run
 
 docker-rm-volume: ### remove docker volume
