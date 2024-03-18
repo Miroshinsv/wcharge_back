@@ -1,7 +1,9 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
@@ -14,11 +16,8 @@ func (uc *UseCase) GetUserPowerbanks(userId int) ([]entity.Powerbank, error) {
 	return powerbanks, nil
 }
 
-func (uc *UseCase) TakePowerbank(userId int, powerbankId int, stationId int) error {
-	err := uc.postgres.TakePowerbankRepo(userId, powerbankId, stationId)
-	if err != nil {
-		return fmt.Errorf("UseCase - TakePowerbank - TakePowerbankRepo - %s", err.Error())
-	}
+func (uc *UseCase) TakePowerbank(userId int, powerbankId int, stationId int) (bool, error) {
+
 	// Ещё нужно выдать через mqtt
 	/*
 		err = uc.mqtt.TakePowerbank(powerbank.SerialNumber, station.SerialNumber)
@@ -30,7 +29,28 @@ func (uc *UseCase) TakePowerbank(userId int, powerbankId int, stationId int) err
 			return fmt.Errorf("UseCase - TakePowerbank - mqtt.TakePowerbank - %s", err.Error())
 		}
 	*/
-	return nil
+	ctx := context.Background()
+
+	st, err := uc.postgres.GetStationRepo(stationId)
+	if err != nil {
+		return false, fmt.Errorf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
+	}
+
+	pb, err := uc.postgres.GetPowerbankRepo(powerbankId)
+	if err != nil {
+		return false, fmt.Errorf("UseCase - uc.postgres.GetPowerbankRepo - %s", err.Error())
+	}
+
+	rez, err := uc.mqtt.PushPowerBank(ctx, &st, &pb)
+	if err != nil {
+		return false, fmt.Errorf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
+	}
+
+	err = uc.postgres.TakePowerbankRepo(userId, powerbankId, stationId)
+	if err != nil {
+		return false, fmt.Errorf("UseCase - TakePowerbank - TakePowerbankRepo - %s", err.Error())
+	}
+	return rez, nil
 }
 
 func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int) error {

@@ -3,10 +3,11 @@ package app
 
 import (
 	"fmt"
+
 	"github.com/Miroshinsv/wcharge_back/config"
 	v1 "github.com/Miroshinsv/wcharge_back/internal/controller/http/v1"
+	grpcclient "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/grpc"
 
-	//mqtt "github.com/Miroshinsv/wcharge_back/internal/controller/mqtt"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	repo "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/postgres"
 
@@ -25,20 +26,16 @@ func Run(cfg *config.Config) {
 	}
 	defer pg.Close()
 
+	m, err := grpcclient.NewMqttV1Client(cfg, l)
+	if err != nil {
+		l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
+	}
+
 	// Use case
 	useCase := usecase.New(
 		repo.New(pg),
+		m,
 	)
-
-	// MQTT Server
-	/*
-		mqttRouter := mqtt.NewRouter(UserUseCase)
-
-		rmqServer, err := server.New(cfg.RMQ.URL, cfg.RMQ.ServerExchange, rmqRouter, l)
-		if err != nil {
-			l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
-		}
-	*/
 
 	// HTTP Server
 	v1.Start(cfg, useCase, l)

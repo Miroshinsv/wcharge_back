@@ -16,16 +16,25 @@ services:
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3.8.12-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: pass
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,info},{default,info}] disk_free_limit 2147483648
+    restart: always
     ports:
-      - 5672:5672
+      - "5672:5672"
       - 15672:15672
+      - 1883:1883
+    hostname: rabbitmq-server
+    volumes:
+      - "./rabbitmq:/var/lib/rabbitmq"
 
   app:
     container_name: wecharge-backend
     image: lexlutter/wcharge-backend:0.0.1
     environment:
       PG_URL: 'postgres://user:pass@postgres:5432/postgres'
-      RMQ_URL: 'amqp://guest:guest@rabbitmq:5672/'
+      RMQ_URL: 'amqp://user:pass@rabbitmq:5672/'
       PG_POOL_MAX: 8
       DISABLE_SWAGGER_HTTP_HANDLER: true
       SESSION_HTTP_KEY: session_http_key
@@ -37,6 +46,20 @@ services:
       - 8080:8080
     depends_on:
       - postgres
+      - rabbitmq
+    
+  wecharge-mqtt:
+    container_name: wecharge-mqtt
+    image: lexlutter/wcharge-mqtt:0.0.1
+    environment:
+      DISABLE_SWAGGER_HTTP_HANDLER: true
+      APP_NAME: wcharge_mqtt
+      APP_VERSION: 0.0.1
+      LOG_LEVEL: debug
+      MQTT_URL: 'amqp://user:pass@rabbitmq-server:5672/'
+    ports:
+      - 9090:9090
+    depends_on:
       - rabbitmq
 
 volumes:

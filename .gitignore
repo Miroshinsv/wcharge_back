@@ -14,3 +14,5 @@ go.work
 go.mod
 
 .idea
+
+rabbitmq

@@ -3,10 +3,11 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	"github.com/gorilla/mux"
 )
 
 func (s *server) newStationRoutes() {
@@ -188,12 +189,16 @@ func (s *server) TakePowerbankWebAPI() http.HandlerFunc {
 			StationId:   stationId,
 		}
 
-		err = s.useCase.TakePowerbank(req.UserId, req.PowerbankId, req.StationId)
+		rez, err := s.useCase.TakePowerbank(req.UserId, req.PowerbankId, req.StationId)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("TakePowerbankWebAPI - %w", err))
 			return
 		}
-		s.respond(w, r, http.StatusOK, nil)
+		data := "successful"
+		if !rez {
+			data = "failed"
+		}
+		s.respond(w, r, http.StatusOK, data)
 	}
 
 }

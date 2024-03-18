@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	"github.com/Miroshinsv/wcharge_back/pkg/httpserver"
 	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 const (

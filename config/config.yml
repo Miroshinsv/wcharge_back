@@ -11,10 +11,8 @@ logger:
   rollbar_env: 'wcharge_back'
 
 postgres:
-  URL: 'postgres://user:pass@localhost:5432/postgres'
+  url: 'postgres://user:pass@localhost:5432/postgres'
   pool_max: 8
 
-
-#rabbitmq:
-#  rpc_server_exchange: 'rpc_server'
-#  rpc_client_exchange: 'rpc_client'
+grpc:
+  url: "localhost:9090"

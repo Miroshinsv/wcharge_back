@@ -11,7 +11,7 @@ type (
 		HTTP `yaml:"http"`
 		Log  `yaml:"logger"`
 		PG   `yaml:"postgres"`
-		//RMQ  `yaml:"rabbitmq"`
+		GRPC `yaml:"grpc"`
 	}
 
 	// App -.
@@ -37,12 +37,9 @@ type (
 		URL     string `env-required:"true"                 env:"PG_URL"`
 	}
 
-	// RMQ -.
-	//RMQ struct {
-	//	ServerExchange string `env-required:"true" yaml:"rpc_server_exchange" env:"RMQ_RPC_SERVER"`
-	//	ClientExchange string `env-required:"true" yaml:"rpc_client_exchange" env:"RMQ_RPC_CLIENT"`
-	//	URL            string `env-required:"true"                            env:"RMQ_URL"`
-	//}
+	GRPC struct {
+		URL string `env-required:"true" yaml:"url" env:"GRPC_URL"`
+	}
 )
 
 // NewConfig returns app config.

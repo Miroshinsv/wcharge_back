@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
@@ -95,6 +96,7 @@ func (r *Repo) insertUserPowerbank(userId int, powerbankId int, stationID int) e
 	}
 	ctx := context.Background()
 	_, err = r.Pool.Exec(ctx, sql, args...)
+	fmt.Print(args...)
 	if err != nil {
 		return fmt.Errorf("insertUserPowerbank - r.Pool.Exec: %w", err)
 	}
