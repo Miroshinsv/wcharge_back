@@ -3,14 +3,15 @@ package v1
 
 import (
 	"context"
-	"fmt"
+
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 
 	// Swagger docs.
-	_ "github.com/Miroshinsv/wcharge_back/docs"
-	"github.com/google/uuid"
 	"net/http"
 	"time"
+
+	_ "github.com/Miroshinsv/wcharge_back/docs"
+	"github.com/google/uuid"
 )
 
 // NewHttpRouter -.
@@ -84,7 +85,7 @@ func (s *server) commonMiddleware(next http.Handler) http.Handler {
 
 func (s *server) authenticateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := s.sessionStore.Get(r, sessionName)
+		/*session, err := s.sessionStore.Get(r, sessionName)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			fmt.Printf("completed with %d %s\n", http.StatusInternalServerError, "s.sessionStore.Get")
@@ -96,9 +97,10 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
 			fmt.Printf("completed with %d %s\n", http.StatusInternalServerError, "session.Values")
 			return
-		}
+		}*/
 
-		u, err := s.useCase.GetUser(id.(int))
+		// u, err := s.useCase.GetUser(id.(int))
+		u, err := s.useCase.GetUser(1)
 		if err != nil {
 			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
 			return

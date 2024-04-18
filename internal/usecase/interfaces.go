@@ -16,6 +16,20 @@ type (
 		RoleRepo
 		UserActionRepo
 	}
+
+	/*
+	MqttRepo interface {
+		PushPowerBank
+		ForcePushPowerBank
+		QueryInventory
+		QueryServerInformation
+		QueryCabinetAPN
+		QuerySIMCardICCIDentity
+		QueryNetworkInformation
+		ResetCabinet
+		Subscribe
+	}
+	*/
 )
 
 type (
