@@ -6,6 +6,7 @@ import (
 
 type Powerbank struct {
 	ID           int                `json:"id"`
+	Position     int                `json:"position"`
 	SerialNumber string             `json:"serial_number"`
 	Capacity     int                `json:"capacity"` // объем заряда
 	Used         int                `json:"used"`     // сколько уже использована банка в часах

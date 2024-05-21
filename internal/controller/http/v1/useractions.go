@@ -7,8 +7,8 @@ import (
 )
 
 func (s *server) newUserActionsRoutes() {
-	s.router.HandleFunc("/v1/login", s.LoginWebAPI()).Methods(http.MethodPost)
-	s.router.HandleFunc("/v1/logout", s.LogoutWebAPI()).Methods(http.MethodPost)
+	s.router.HandleFunc("/login", s.LoginWebAPI()).Methods(http.MethodPost)   // TODO
+	s.router.HandleFunc("/logout", s.LogoutWebAPI()).Methods(http.MethodPost) // TODO
 }
 
 func (s *server) LoginWebAPI() http.HandlerFunc {

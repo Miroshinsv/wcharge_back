@@ -75,11 +75,14 @@ CREATE TABLE tbl_powerbanks (
     deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
-insert into tbl_powerbanks (serial_number, capacity) VALUES ('pw1', 10000);
-insert into tbl_powerbanks (serial_number, capacity) VALUES ('pw2', 10000);
-insert into tbl_powerbanks (serial_number, capacity) VALUES ('pw3', 10000);
-insert into tbl_powerbanks (serial_number, capacity) VALUES ('pw4', 8000);
-insert into tbl_powerbanks (serial_number, capacity) VALUES ('pw5', 8000);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('1', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('2', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('3', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('4', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('5', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('6', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('7', 5400);
+insert into tbl_powerbanks (serial_number, capacity) VALUES ('8', 5400);
 
 CREATE TABLE tbl_stations (
     id serial PRIMARY KEY,
@@ -95,28 +98,30 @@ CREATE TABLE tbl_stations (
     FOREIGN KEY (address_id) REFERENCES tbl_addresses (id) ON DELETE SET DEFAULT
 );
 
-insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
-    VALUES ('st1', 1, 10, 8);
-insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
-    VALUES ('st1', 2, 10, 8);
-insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
-    VALUES ('st1', 2, 10, 10);
+insert into tbl_stations (serial_number, address_id, capacity, free_capacity) VALUES ('RL3H082111030142', 1, 8, 6);
+-- insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
+--     VALUES ('st1', 2, 10, 8);
+-- insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
+--     VALUES ('st1', 2, 10, 10);
 
 CREATE TABLE tbl_station_powerbank (
     id serial PRIMARY KEY,
     station_id INT NOT NULL,
     powerbank_id INT NOT NULL,
+    position INT,
     created_ad TIMESTAMPTZ DEFAULT NOW(),
     FOREIGN KEY (station_id) REFERENCES tbl_stations (id) ON DELETE CASCADE,
     FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE
 );
 
 insert into tbl_station_powerbank (station_id, powerbank_id) VALUES (1, 1);
-insert into tbl_station_powerbank (station_id, powerbank_id) VALUES (1, 2);
-insert into tbl_station_powerbank (station_id, powerbank_id) VALUES (2, 3);
-insert into tbl_station_powerbank (station_id, powerbank_id) VALUES (2, 4);
-
-
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 2, 2);
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 3, 3);
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 4, 4);
+insert into tbl_station_powerbank (station_id, powerbank_id) VALUES (1, 5);
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 6, 6);
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 7, 7);
+insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 8, 8);
 
 CREATE TABLE tbl_user_powerbank (
     id serial PRIMARY KEY,
@@ -127,7 +132,7 @@ CREATE TABLE tbl_user_powerbank (
     FOREIGN KEY (powerbank_id) REFERENCES tbl_powerbanks (id) ON DELETE CASCADE
 );
 
-insert into tbl_user_powerbank (user_id, powerbank_id) VALUES (2, 5);
+-- insert into tbl_user_powerbank (user_id, powerbank_id) VALUES (2, 5);
 
 -- Триггеры на update
 CREATE OR REPLACE FUNCTION trigger_set_timestamp_update()

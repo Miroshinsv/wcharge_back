@@ -12,8 +12,8 @@ func (r *Repo) GetRoleRepo(id int) (entity.Role, error) {
 	}
 	sql, args, err := r.Builder.
 		Select("id, role_name, role_privileges").
-		From("postgres.public.tbl_role").
-		Where("postgres.public.tbl_role.id = ?", id).
+		From("tbl_role").
+		Where("tbl_role.id = ?", id).
 		ToSql()
 	if err != nil {
 		return u, fmt.Errorf("Repo - GetRoleRepo - r.Builder: %w", err)

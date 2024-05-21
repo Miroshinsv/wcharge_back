@@ -10,11 +10,12 @@ import (
 )
 
 func (s *server) newAddressRoutes() {
-	s.apiRouter.HandleFunc("/address/all", s.GetAddressesWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/address/get/{id:[0-9]+}", s.GetAddressWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/address/create", s.CreateAddressWebAPI()).Methods(http.MethodPost)
-	s.apiRouter.HandleFunc("/address/update/{id:[0-9]+}", s.UpdateAddressWebAPI()).Methods(http.MethodPut)
-	s.apiRouter.HandleFunc("/address/delete/{id:[0-9]+}", s.DeleteAddressWebAPI).Methods(http.MethodDelete)
+	s.apiRouter.HandleFunc("/address", s.GetAddressesWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/address", s.CreateAddressWebAPI()).Methods(http.MethodPost) // TODO
+
+	s.apiRouter.HandleFunc("/address/{id:[0-9]+}", s.GetAddressWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/address/{id:[0-9]+}", s.UpdateAddressWebAPI()).Methods(http.MethodPut) // TODO
+	s.apiRouter.HandleFunc("/address/{id:[0-9]+}", s.DeleteAddressWebAPI).Methods(http.MethodDelete)
 }
 
 func (s *server) GetAddressesWebAPI(w http.ResponseWriter, r *http.Request) {

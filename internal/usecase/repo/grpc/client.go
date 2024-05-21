@@ -41,8 +41,8 @@ func (c *MqttV1Client) PushPowerBank(ctx context.Context, st *entity.Station, pw
 		DeviceNumber: st.SerialNumber,
 	}
 	pr := pb.RequestPush{
-		RlSlot: 1,
-		RlSeq:  1,
+		RlSlot: uint32(pw.Position),
+		//RlSeq:  1,
 	}
 	command := pb.CommandPush{
 		Device: &device,
@@ -62,8 +62,27 @@ func (c *MqttV1Client) ForcePushPowerBank(ctx context.Context, st *entity.Statio
 	return nil
 }
 
-func (c *MqttV1Client) QueryInventory(ctx context.Context) error {
-	return nil
+func (c *MqttV1Client) QueryInventory(ctx context.Context, st *entity.Station) (*pb.ResponseInventory, error) {
+	device := pb.Device{
+		Cabinet:      st.SerialNumber,
+		DeviceNumber: st.SerialNumber,
+	}
+	pr := pb.RequestInventory{
+		//RlSlot: 1,
+		RlSeq: 1,
+	}
+	command := pb.CommandInventory{
+		Device: &device,
+		Invent: &pr,
+	}
+	req, err := c.service.QueryInventory(ctx, &command)
+	if err != nil {
+		c.logger.Info("MqttV1Client - QueryInventory - c.service.QueryInventory - err")
+		return req, err
+	} else {
+		c.logger.Debug(req)
+	}
+	return req, nil
 }
 
 func (c *MqttV1Client) QueryServerInformation(ctx context.Context) error {

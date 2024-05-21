@@ -14,7 +14,7 @@ import (
 func (r *Repo) GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) {
 	sql, args, err := r.Builder.
 		Select("powerbank_id").
-		From("postgres.public.tbl_user_powerbank").
+		From("tbl_user_powerbank").
 		Where(squirrel.Eq{"user_id": userId}).
 		ToSql()
 	if err != nil {
@@ -125,15 +125,44 @@ func (r *Repo) deleteUserPowerbank(userId int, powerbankId int) error {
 }
 
 // TakePowerbankRepo take user powerbank
-func (r *Repo) TakePowerbankRepo(userId int, powerbankId int, stationID int) error {
-	err := r.insertUserPowerbank(userId, powerbankId, stationID)
+func (r *Repo) TakePowerbank(userId int, powerbankId int, stationID int) error {
+
+	sql, args, err := r.Builder.
+		Insert("tbl_user_powerbank").
+		Columns("user_id, powerbank_id").
+		Values(userId, powerbankId).
+		ToSql()
 	if err != nil {
-		return fmt.Errorf("BackTakePowerbankRepo - %w", err)
+		return err
 	}
-	err = r.deleteStationPowerbank(stationID, powerbankId)
+	ctx := context.Background()
+	_, err = r.Pool.Exec(ctx, sql, args...)
+	//fmt.Print(args...)
 	if err != nil {
-		return fmt.Errorf("BackTakePowerbankRepo - %w", err)
+		return err
 	}
+
+	//err := r.insertUserPowerbank(userId, powerbankId, stationID)
+	//if err != nil {
+	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
+	//}
+
+	sql, args, err = r.Builder.
+		Update("tbl_powerbanks").
+		Set("used", 1).
+		Where(squirrel.Eq{"id": powerbankId}).
+		ToSql()
+
+	_, err = r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return err
+	}
+
+	//err = r.deleteStationPowerbank(stationID, powerbankId)
+	//if err != nil {
+	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
+	//}
+
 	return nil
 }
 

@@ -11,27 +11,25 @@ import (
 )
 
 func (s *server) newStationRoutes() {
-	s.apiRouter.HandleFunc("/station/all", s.GetStationsWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/station/get/{id:[0-9]+}", s.GetStationWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/station/create", s.CreateStationWebAPI()).Methods(http.MethodPost)
-	s.apiRouter.HandleFunc("/station/update/{id:[0-9]+}", s.UpdateStationWebAPI()).Methods(http.MethodPut)
-	s.apiRouter.HandleFunc("/station/delete/{id:[0-9]+}", s.DeleteStationWebAPI).Methods(http.MethodDelete)
+	s.apiRouter.HandleFunc("/stations", s.GetStationsWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/stations", s.CreateStationWebAPI).Methods(http.MethodPost)
 
-	s.apiRouter.HandleFunc("/station/{id:[0-9]+}/get/all-powerbanks", s.GetAllPowerbanksInStation).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.GetStationWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.UpdateStationWebAPI()).Methods(http.MethodPut) // TODO
+	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.DeleteStationWebAPI).Methods(http.MethodDelete)
 
+	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}/powerbanks", s.GetAllPowerbanksInStation).Methods(http.MethodGet)
 	s.apiRouter.HandleFunc(
-		"/station/{station_id:[0-9]+}/take-powerbank/{powerbank_id:[0-9]+}",
-		s.TakePowerbankWebAPI(),
+		"/stations/{station_id:[0-9]+}/powerbanks",
+		s.TakePowerbankWebAPI,
 	).Methods(http.MethodPost)
-
 	s.apiRouter.HandleFunc(
-		"/station/{station_id:[0-9]+}/put-powerbank/{powerbank_id:[0-9]+}",
-		s.PutPowerbankWebAPI(),
-	).Methods(http.MethodPost)
-
+		"/stations/{station_id:[0-9]+}/powerbanks/{powerbank_id:[0-9]+}",
+		s.PutPowerbankWebAPI(), // TODO
+	).Methods(http.MethodPut)
 	s.apiRouter.HandleFunc(
-		"/station/{station_id:[0-9]+}/add-powerbank/{powerbank_id:[0-9]+}",
-		s.AddPowerbankToStationWebAPI(),
+		"/stations/{station_id:[0-9]+}/powerbanks/{powerbank_id:[0-9]+}",
+		s.AddPowerbankToStationWebAPI(), // TODO
 	).Methods(http.MethodPost)
 }
 
@@ -47,15 +45,13 @@ func (s *server) GetStationsWebAPI(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) GetStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetStationWebAPI - %w", err))
 		return
 	}
 
-	if err != nil {
-		return
-	}
 	st, err := s.useCase.GetStation(id)
 	if err != nil {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetStationWebAPI - %w", err))
@@ -65,7 +61,7 @@ func (s *server) GetStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, st)
 }
 
-func (s *server) CreateStationWebAPI() http.HandlerFunc {
+func (s *server) CreateStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		SerialNumber string `json:"serial_number"`
 		AddressId    int    `json:"address"`
@@ -73,27 +69,25 @@ func (s *server) CreateStationWebAPI() http.HandlerFunc {
 		FreeCapacity int    `json:"free_capacity"`
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreateStationWebAPI - %w", err))
-			return
-		}
-		st := entity.Station{
-			SerialNumber: req.SerialNumber,
-			AddressId:    req.AddressId,
-			Capacity:     req.Capacity,
-			FreeCapacity: req.FreeCapacity,
-		}
-
-		err := s.useCase.CreateStation(st)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("CreateStationWebAPI - %w", err))
-			return
-		}
-
-		s.respond(w, r, http.StatusOK, nil)
+	req := &request{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		s.error(w, r, http.StatusBadRequest, fmt.Errorf("CreateStationWebAPI - %w", err))
+		return
 	}
+	st := entity.Station{
+		SerialNumber: req.SerialNumber,
+		AddressId:    req.AddressId,
+		Capacity:     req.Capacity,
+		FreeCapacity: req.FreeCapacity,
+	}
+
+	err := s.useCase.CreateStation(st)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("CreateStationWebAPI - %w", err))
+		return
+	}
+
+	s.respond(w, r, http.StatusOK, nil)
 }
 
 func (s *server) UpdateStationWebAPI() http.HandlerFunc {
@@ -163,44 +157,38 @@ func (s *server) GetAllPowerbanksInStation(w http.ResponseWriter, r *http.Reques
 	s.respond(w, r, http.StatusOK, powerbanks)
 }
 
-func (s *server) TakePowerbankWebAPI() http.HandlerFunc {
+func (s *server) TakePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
+
 	type request struct {
-		UserId      int `json:"userId"`
-		PowerbankId int `json:"powerbankId"`
-		StationId   int `json:"stationId"`
+		UserId    int `json:"userId"`
+		StationId int `json:"stationId"`
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		userId := r.Context().Value(ctxKeyUser).(entity.User).ID
-		powerbankId, err := strconv.Atoi(vars["powerbank_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("TakePowerbankWebAPI - %w", err))
-			return
-		}
-		stationId, err := strconv.Atoi(vars["station_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("TakePowerbankWebAPI - %w", err))
-			return
-		}
-		req := &request{
-			UserId:      userId,
-			PowerbankId: powerbankId,
-			StationId:   stationId,
-		}
+	vars := mux.Vars(r)
 
-		rez, err := s.useCase.TakePowerbank(req.UserId, req.PowerbankId, req.StationId)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("TakePowerbankWebAPI - %w", err))
-			return
-		}
-		data := "successful"
-		if !rez {
-			data = "failed"
-		}
-		s.respond(w, r, http.StatusOK, data)
+	userId := r.Context().Value(ctxKeyUser).(entity.User).ID
+
+	stationId, err := strconv.Atoi(vars["station_id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("TakePowerbankWebAPI - %w", err))
+		return
+	}
+	req := &request{
+		UserId:    userId,
+		StationId: stationId,
 	}
 
+	rez, err := s.useCase.TakePowerbank(req.UserId, req.StationId)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	data := "successful"
+	if !rez {
+		data = "failed"
+	}
+	s.respond(w, r, http.StatusOK, data)
 }
 
 func (s *server) PutPowerbankWebAPI() http.HandlerFunc {

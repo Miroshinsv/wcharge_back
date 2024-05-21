@@ -22,7 +22,7 @@ func (s *server) NewHttpRouter() {
 	s.router.Use(s.logRequest)
 	s.router.Use(s.commonMiddleware)
 
-	s.apiRouter = s.router.PathPrefix("/v1/api").Subrouter()
+	s.apiRouter = s.router.PathPrefix("/api/v1").Subrouter()
 	s.apiRouter.Use(s.authenticateUser)
 	s.apiRouter.HandleFunc("/whoami", s.handleWhoAmI()).Methods(http.MethodGet)
 

@@ -16,15 +16,15 @@ func (uc *UseCase) GetUserPowerbanks(userId int) ([]entity.Powerbank, error) {
 	return powerbanks, nil
 }
 
-func (uc *UseCase) TakePowerbank(userId int, powerbankId int, stationId int) (bool, error) {
+func (uc *UseCase) TakePowerbank(userId int, stationId int) (bool, error) {
 
 	// Ещё нужно выдать через mqtt
 	/*
 		err = uc.mqtt.TakePowerbank(powerbank.SerialNumber, station.SerialNumber)
 		if err != nil {
-			err2 := uc.postgres.ReturnPowerbankRepo(user.ID, powerbank.ID, station.ID) // откатить изменения TakePowerbankRepo
+			err2 := uc.postgres.ReturnPowerbankRepo(user.ID, powerbank.ID, station.ID) // откатить изменения TakePowerbank
 			if err2 != nil {
-				return fmt.Errorf("UseCase - TakePowerbank - TakePowerbankRepo (%s) \n BackTakePowerbankRepo (%s)", err.Error(), err2.Error())
+				return fmt.Errorf("UseCase - TakePowerbank - TakePowerbank (%s) \n BackTakePowerbankRepo (%s)", err.Error(), err2.Error())
 			}
 			return fmt.Errorf("UseCase - TakePowerbank - mqtt.TakePowerbank - %s", err.Error())
 		}
@@ -33,22 +33,26 @@ func (uc *UseCase) TakePowerbank(userId int, powerbankId int, stationId int) (bo
 
 	st, err := uc.postgres.GetStationRepo(stationId)
 	if err != nil {
-		return false, fmt.Errorf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
+		fmt.Printf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
+		return false, err
 	}
 
-	pb, err := uc.postgres.GetPowerbankRepo(powerbankId)
+	pb, err := uc.postgres.GetRamdomPowebank()
 	if err != nil {
-		return false, fmt.Errorf("UseCase - uc.postgres.GetPowerbankRepo - %s", err.Error())
+		fmt.Printf("UseCase - uc.postgres.GetRamdomPowebank - %s", err.Error())
+		return false, err
 	}
 
-	rez, err := uc.mqtt.PushPowerBank(ctx, &st, &pb)
+	rez, err := uc.mqtt.PushPowerBank(ctx, &st, pb)
 	if err != nil {
-		return false, fmt.Errorf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
+		fmt.Printf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
+		return false, err
 	}
 
-	err = uc.postgres.TakePowerbankRepo(userId, powerbankId, stationId)
+	err = uc.postgres.TakePowerbank(userId, pb.ID, stationId)
 	if err != nil {
-		return false, fmt.Errorf("UseCase - TakePowerbank - TakePowerbankRepo - %s", err.Error())
+		fmt.Printf("UseCase -TakePowerbank - TakePowerbank  - %s", err.Error())
+		return false, err
 	}
 	return rez, nil
 }
@@ -62,9 +66,9 @@ func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int) erro
 	/*
 		err = uc.mqtt.ReturnPowerbank(powerbank.SerialNumber, station.SerialNumber)
 		if err != nil {
-			err2 := uc.postgres.TakePowerbankRepo(user.ID, powerbank.ID, station.ID) // откатить изменения ReturnPowerbankRepo
+			err2 := uc.postgres.TakePowerbank(user.ID, powerbank.ID, station.ID) // откатить изменения ReturnPowerbankRepo
 			if err2 != nil {
-				return fmt.Errorf("UseCase - TakePowerbank - TakePowerbankRepo (%s) \n BackTakePowerbankRepo (%s)", err.Error(), err2.Error())
+				return fmt.Errorf("UseCase - TakePowerbank - TakePowerbank (%s) \n BackTakePowerbankRepo (%s)", err.Error(), err2.Error())
 			}
 			return fmt.Errorf("UseCase - TakePowerbank - mqtt.TakePowerbank - %s", err.Error())
 		}

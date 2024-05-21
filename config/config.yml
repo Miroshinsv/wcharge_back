@@ -3,7 +3,7 @@ app:
   version: '1.0.0'
 
 http:
-  port: '8080'
+  port: '8888'
   session_http_key: 'session_http_key'
 
 logger:
@@ -11,8 +11,8 @@ logger:
   rollbar_env: 'wcharge_back'
 
 postgres:
-  url: 'postgres://user:pass@localhost:5432/postgres'
+  url: 'postgres://postgres:postgres@localhost:5432/wch'
   pool_max: 8
 
 grpc:
-  url: "localhost:9090"
+  url: "localhost:9999"

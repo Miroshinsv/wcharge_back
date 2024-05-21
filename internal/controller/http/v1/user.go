@@ -11,12 +11,13 @@ import (
 
 func (s *server) newUserRoutes() {
 	// prefix /api
-	s.apiRouter.HandleFunc("/user/all", s.GetUsersWebAPI).Methods(http.MethodGet)                     // Получить список всех пользователей
-	s.apiRouter.HandleFunc("/user/get/{id:[0-9]+}", s.GetUserWebAPI).Methods(http.MethodGet)          // Получить информацию о конкретном пользователе
-	s.apiRouter.HandleFunc("/user/create", s.CreateUserWebAPI()).Methods(http.MethodPost)             // Создать нового пользователя
-	s.apiRouter.HandleFunc("/user/update/{id:[0-9]+}", s.UpdateUserWebAPI()).Methods(http.MethodPut)  // Обновить информацию о пользователе
-	s.apiRouter.HandleFunc("/user/delete/{id:[0-9]+}", s.DeleteUserWebAPI).Methods(http.MethodDelete) // Удалить пользователя
-	s.apiRouter.HandleFunc("/user/{id:[0-9]+}/get/all-powerbanks", s.GetUserPowerbanksWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/user", s.GetUsersWebAPI).Methods(http.MethodGet)      // Получить список всех пользователей
+	s.apiRouter.HandleFunc("/user", s.CreateUserWebAPI()).Methods(http.MethodPost) // Создать нового пользователя // TODO
+
+	s.apiRouter.HandleFunc("/user/{id:[0-9]+}", s.GetUserWebAPI).Methods(http.MethodGet)       // Получить информацию о конкретном пользователе
+	s.apiRouter.HandleFunc("/user/{id:[0-9]+}", s.UpdateUserWebAPI()).Methods(http.MethodPut)  // Обновить информацию о пользователе // TODO
+	s.apiRouter.HandleFunc("/user/{id:[0-9]+}", s.DeleteUserWebAPI).Methods(http.MethodDelete) // Удалить пользователя
+	s.apiRouter.HandleFunc("/user/{id:[0-9]+}/powerbanks", s.GetUserPowerbanksWebAPI).Methods(http.MethodGet)
 }
 
 func (s *server) GetUsersWebAPI(w http.ResponseWriter, r *http.Request) {

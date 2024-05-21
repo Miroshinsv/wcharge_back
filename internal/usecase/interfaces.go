@@ -73,6 +73,7 @@ type (
 		DeletePowerbankRepo(int) error
 		GetPowerbankRepo(int) (entity.Powerbank, error)
 		GetPowerbanksRepo() ([]entity.Powerbank, error)
+		GetRamdomPowebank() (*entity.Powerbank, error)
 	}
 )
 
@@ -116,7 +117,7 @@ type (
 
 	UserActionRepo interface {
 		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
-		TakePowerbankRepo(userId int, powerbankId int, stationId int) error
+		TakePowerbank(userId int, powerbankId int, stationId int) error
 		PutPowerbankRepo(userId int, powerbankId int, stationId int) error
 		AddPowerbankToStationRepo(powerbankId int, stationId int) error
 	}

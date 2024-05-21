@@ -9,7 +9,7 @@ import (
 
 func (r *Repo) CreatePowerbankRepo(p entity.Powerbank) error {
 	sql, args, err := r.Builder.
-		Insert("public.tbl_powerbanks").
+		Insert("tbl_powerbanks").
 		Columns("serial_number, capacity, used").
 		Values(p.SerialNumber, p.Capacity, p.Used).
 		ToSql()
@@ -59,6 +59,44 @@ func (r *Repo) DeletePowerbankRepo(id int) error {
 	return nil
 }
 
+func (r *Repo) GetRamdomPowebank() (*entity.Powerbank, error) {
+	powerbank := entity.Powerbank{}
+
+	sql, args, err := r.Builder.
+		Select("tbl_powerbanks.id, serial_number, used, tsp.position").
+		From("tbl_powerbanks").
+		Join("tbl_station_powerbank tsp on tbl_powerbanks.id = tsp.powerbank_id").
+		Where("used = 0").
+		OrderBy("random()").
+		Limit(1).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	row := r.Pool.QueryRow(ctx, sql, args...)
+
+	err = row.Scan(
+		&powerbank.ID,
+		&powerbank.SerialNumber,
+		//&powerbank.Capacity,
+		&powerbank.Used,
+		//&powerbank.Removed,
+		//&powerbank.CreateAt,
+		//&powerbank.UpdateAt,
+		//&powerbank.DeleteAt,
+		&powerbank.Position,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &powerbank, nil
+}
+
 func (r *Repo) GetPowerbankRepo(id int) (entity.Powerbank, error) {
 	powerbank := entity.Powerbank{}
 	sql, args, err := r.Builder.
@@ -85,6 +123,7 @@ func (r *Repo) GetPowerbankRepo(id int) (entity.Powerbank, error) {
 		&powerbank.UpdateAt,
 		&powerbank.DeleteAt,
 	)
+
 	if err != nil {
 		return powerbank, fmt.Errorf("GetPowerbankRepo - rows.Scan: %w", err)
 	}

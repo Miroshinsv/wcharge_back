@@ -10,11 +10,12 @@ import (
 )
 
 func (s *server) newPowerbankRoutes() {
-	s.apiRouter.HandleFunc("/powerbank/all", s.GetPowerbanksWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/powerbank/get/{id:[0-9]+}", s.GetPowerbankWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/powerbank/create", s.CreatePowerbankWebAPI()).Methods(http.MethodPost)
-	s.apiRouter.HandleFunc("/powerbank/update/{id:[0-9]+}", s.UpdatePowerbankWebAPI()).Methods(http.MethodPut)
-	s.apiRouter.HandleFunc("/powerbank/delete/{id:[0-9]+}", s.DeletePowerbankWebAPI).Methods(http.MethodDelete)
+	s.apiRouter.HandleFunc("/powerbanks", s.GetPowerbanksWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/powerbanks", s.CreatePowerbankWebAPI()).Methods(http.MethodPost) // TODO
+
+	s.apiRouter.HandleFunc("/powerbanks/{id:[0-9]+}", s.GetPowerbankWebAPI).Methods(http.MethodGet)
+	s.apiRouter.HandleFunc("/powerbanks/{id:[0-9]+}", s.UpdatePowerbankWebAPI()).Methods(http.MethodPut) // TODO
+	s.apiRouter.HandleFunc("/powerbanks/{id:[0-9]+}", s.DeletePowerbankWebAPI).Methods(http.MethodDelete)
 }
 
 func (s *server) GetPowerbanksWebAPI(w http.ResponseWriter, r *http.Request) {
