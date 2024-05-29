@@ -118,7 +118,7 @@ type (
 	UserActionRepo interface {
 		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
 		TakePowerbank(userId int, powerbankId int, stationId int) error
-		PutPowerbankRepo(userId int, powerbankId int, stationId int) error
+		PutPowerbankRepo(userId int, powerbankId int, stationId int, position int) error
 		AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error
 	}
 )

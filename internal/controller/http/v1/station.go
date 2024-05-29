@@ -198,6 +198,7 @@ func (s *server) PutPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 		UserId      int `json:"userId"`
 		PowerbankId int `json:"powerbankId"`
 		StationId   int `json:"stationId"`
+		Position    int `json:"position"`
 	}
 
 	vars := mux.Vars(r)
@@ -212,13 +213,15 @@ func (s *server) PutPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
 		return
 	}
+	position, err := strconv.Atoi(vars["position"])
 	req := &request{
 		UserId:      userId,
 		PowerbankId: powerbankId,
 		StationId:   stationId,
+		Position:    position,
 	}
 
-	err = s.useCase.PutPowerbank(req.UserId, req.PowerbankId, req.StationId)
+	err = s.useCase.PutPowerbank(req.UserId, req.PowerbankId, req.StationId, req.Position)
 	if err != nil {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
 		return

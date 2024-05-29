@@ -57,8 +57,8 @@ func (uc *UseCase) TakePowerbank(userId int, stationId int) (*entity.Powerbank, 
 	return pb, nil
 }
 
-func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int) error {
-	err := uc.postgres.PutPowerbankRepo(userId, powerbankId, stationId)
+func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int, position int) error {
+	err := uc.postgres.PutPowerbankRepo(userId, powerbankId, stationId, position)
 	if err != nil {
 		return fmt.Errorf("UseCase - PutPowerbank - ReturnPowerbankRepo - %s", err.Error())
 	}
