@@ -16,7 +16,7 @@ func (uc *UseCase) GetUserPowerbanks(userId int) ([]entity.Powerbank, error) {
 	return powerbanks, nil
 }
 
-func (uc *UseCase) TakePowerbank(userId int, stationId int) (bool, error) {
+func (uc *UseCase) TakePowerbank(userId int, stationId int) (*entity.Powerbank, error) {
 
 	// Ещё нужно выдать через mqtt
 	/*
@@ -34,27 +34,27 @@ func (uc *UseCase) TakePowerbank(userId int, stationId int) (bool, error) {
 	st, err := uc.postgres.GetStationRepo(stationId)
 	if err != nil {
 		fmt.Printf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
-		return false, err
+		return nil, err
 	}
 
 	pb, err := uc.postgres.GetRamdomPowebank()
 	if err != nil {
 		fmt.Printf("UseCase - uc.postgres.GetRamdomPowebank - %s", err.Error())
-		return false, err
+		return nil, err
 	}
 
-	rez, err := uc.mqtt.PushPowerBank(ctx, &st, pb)
+	_, err = uc.mqtt.PushPowerBank(ctx, &st, pb)
 	if err != nil {
 		fmt.Printf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
-		return false, err
+		return nil, err
 	}
 
 	err = uc.postgres.TakePowerbank(userId, pb.ID, stationId)
 	if err != nil {
 		fmt.Printf("UseCase -TakePowerbank - TakePowerbank  - %s", err.Error())
-		return false, err
+		return nil, err
 	}
-	return rez, nil
+	return pb, nil
 }
 
 func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int) error {
@@ -76,8 +76,8 @@ func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int) erro
 	return nil
 }
 
-func (uc *UseCase) AddPowerbankToStation(powerbankId int, stationId int) error {
-	err := uc.postgres.AddPowerbankToStationRepo(powerbankId, stationId)
+func (uc *UseCase) AddPowerbankToStation(powerbankId int, stationId int, position int) error {
+	err := uc.postgres.AddPowerbankToStationRepo(powerbankId, stationId, position)
 	if err != nil {
 		return fmt.Errorf("AddPowerbankToStation - %w", err)
 	}

@@ -6,13 +6,13 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-func (uc *UseCase) CreatePowerbank(p entity.Powerbank) error {
-	err := uc.postgres.CreatePowerbankRepo(p)
+func (uc *UseCase) CreatePowerbank(p entity.Powerbank) (*entity.Powerbank, error) {
+	pp, err := uc.postgres.CreatePowerbankRepo(p)
 	if err != nil {
-		return fmt.Errorf("UseCase - CreateStation - uc.repo.CreateStationRepo: %w", err)
+		return nil, err //fmt.Errorf("UseCase - CreateStation - uc.repo.CreateStationRepo: %w", err)
 	}
 
-	return nil
+	return pp, nil
 }
 
 func (uc *UseCase) UpdatePowerbank(id int, p entity.Powerbank) error {

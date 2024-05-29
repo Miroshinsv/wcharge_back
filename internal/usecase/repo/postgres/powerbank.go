@@ -7,22 +7,31 @@ import (
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-func (r *Repo) CreatePowerbankRepo(p entity.Powerbank) error {
+func (r *Repo) CreatePowerbankRepo(p entity.Powerbank) (*entity.Powerbank, error) {
 	sql, args, err := r.Builder.
 		Insert("tbl_powerbanks").
 		Columns("serial_number, capacity, used").
 		Values(p.SerialNumber, p.Capacity, p.Used).
+		Suffix("returning id").
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("CreatePowerbankRepo - r.Builder: %w", err)
+		return nil, err //fmt.Errorf("CreatePowerbankRepo - r.Builder: %w", err)
 	}
 	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	//if err != nil {
+	//	return fmt.Errorf("CreatePowerbankRepo - r.Pool.Exec: %w", err)
+	//}
+
+	err = row.Scan(
+		&p.ID,
+	)
+
 	if err != nil {
-		return fmt.Errorf("CreatePowerbankRepo - r.Pool.Exec: %w", err)
+		return nil, err //fmt.Errorf("PostgresRepo - CreateStationRepo - r.Pool.Exec: %w", err)
 	}
 
-	return nil
+	return &p, nil
 }
 
 func (r *Repo) UpdatePowerbankRepo(id int, p entity.Powerbank) error {

@@ -16,3 +16,7 @@ postgres:
 
 grpc:
   url: "localhost:9999"
+
+rabbit:
+  url: 'amqp://guest:guest@89.111.154.223:5672/'
+  client_id: '10002'

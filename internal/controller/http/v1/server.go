@@ -49,6 +49,7 @@ func NewServer(u *usecase.UseCase, sessionStore sessions.Store, l logger.Interfa
 }
 
 func Start(cfg *config.Config, u *usecase.UseCase, l logger.Interface) {
+
 	sessionsStore := sessions.NewCookieStore([]byte(cfg.SessionHttpKey))
 
 	srv := NewServer(u, sessionsStore, l)

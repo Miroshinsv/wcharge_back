@@ -15,7 +15,7 @@ func (s *server) newStationRoutes() {
 	s.apiRouter.HandleFunc("/stations", s.CreateStationWebAPI).Methods(http.MethodPost)
 
 	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.GetStationWebAPI).Methods(http.MethodGet)
-	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.UpdateStationWebAPI()).Methods(http.MethodPut) // TODO
+	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.UpdateStationWebAPI).Methods(http.MethodPut)
 	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}", s.DeleteStationWebAPI).Methods(http.MethodDelete)
 
 	s.apiRouter.HandleFunc("/stations/{id:[0-9]+}/powerbanks", s.GetAllPowerbanksInStation).Methods(http.MethodGet)
@@ -25,11 +25,11 @@ func (s *server) newStationRoutes() {
 	).Methods(http.MethodPost)
 	s.apiRouter.HandleFunc(
 		"/stations/{station_id:[0-9]+}/powerbanks/{powerbank_id:[0-9]+}",
-		s.PutPowerbankWebAPI(), // TODO
+		s.PutPowerbankWebAPI,
 	).Methods(http.MethodPut)
 	s.apiRouter.HandleFunc(
 		"/stations/{station_id:[0-9]+}/powerbanks/{powerbank_id:[0-9]+}",
-		s.AddPowerbankToStationWebAPI(), // TODO
+		s.AddPowerbankToStationWebAPI,
 	).Methods(http.MethodPost)
 }
 
@@ -81,7 +81,7 @@ func (s *server) CreateStationWebAPI(w http.ResponseWriter, r *http.Request) {
 		FreeCapacity: req.FreeCapacity,
 	}
 
-	err := s.useCase.CreateStation(st)
+	_, err := s.useCase.CreateStation(st) // TODO
 	if err != nil {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("CreateStationWebAPI - %w", err))
 		return
@@ -90,37 +90,35 @@ func (s *server) CreateStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, nil)
 }
 
-func (s *server) UpdateStationWebAPI() http.HandlerFunc {
+func (s *server) UpdateStationWebAPI(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		AddressId    int `json:"address"`
 		FreeCapacity int `json:"free_capacity"`
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id, err := strconv.Atoi(vars["id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdateStationWebAPI - %w", err))
-			return
-		}
-		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("UpdateStationWebAPI - %w", err))
-			return
-		}
-		st := entity.Station{
-			AddressId:    req.AddressId,
-			FreeCapacity: req.FreeCapacity,
-		}
-
-		err = s.useCase.UpdateStation(id, st)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdateStationWebAPI - %w", err))
-			return
-		}
-
-		s.respond(w, r, http.StatusOK, nil)
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdateStationWebAPI - %w", err))
+		return
 	}
+	req := &request{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		s.error(w, r, http.StatusBadRequest, fmt.Errorf("UpdateStationWebAPI - %w", err))
+		return
+	}
+	st := entity.Station{
+		AddressId:    req.AddressId,
+		FreeCapacity: req.FreeCapacity,
+	}
+
+	err = s.useCase.UpdateStation(id, st)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("UpdateStationWebAPI - %w", err))
+		return
+	}
+
+	s.respond(w, r, http.StatusOK, nil)
 }
 
 func (s *server) DeleteStationWebAPI(w http.ResponseWriter, r *http.Request) {
@@ -184,77 +182,78 @@ func (s *server) TakePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := "successful"
-	if !rez {
-		data = "failed"
+	type response struct {
+		powerbankId int `json:"powerbank_id"`
 	}
+
+	data := response{rez.ID}
+	//if !rez {
+	//	data = "failed"
+	//}
 	s.respond(w, r, http.StatusOK, data)
 }
 
-func (s *server) PutPowerbankWebAPI() http.HandlerFunc {
+func (s *server) PutPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		UserId      int `json:"userId"`
 		PowerbankId int `json:"powerbankId"`
 		StationId   int `json:"stationId"`
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		userId := r.Context().Value(ctxKeyUser).(entity.User).ID
-		powerbankId, err := strconv.Atoi(vars["powerbank_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
-			return
-		}
-		stationId, err := strconv.Atoi(vars["station_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
-			return
-		}
-		req := &request{
-			UserId:      userId,
-			PowerbankId: powerbankId,
-			StationId:   stationId,
-		}
-
-		err = s.useCase.PutPowerbank(req.UserId, req.PowerbankId, req.StationId)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
-			return
-		}
-		s.respond(w, r, http.StatusOK, nil)
+	vars := mux.Vars(r)
+	userId := r.Context().Value(ctxKeyUser).(entity.User).ID
+	powerbankId, err := strconv.Atoi(vars["powerbank_id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
+		return
+	}
+	stationId, err := strconv.Atoi(vars["station_id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
+		return
+	}
+	req := &request{
+		UserId:      userId,
+		PowerbankId: powerbankId,
+		StationId:   stationId,
 	}
 
+	err = s.useCase.PutPowerbank(req.UserId, req.PowerbankId, req.StationId)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("PutPowerbankWebAPI - %w", err))
+		return
+	}
+	s.respond(w, r, http.StatusOK, nil)
 }
 
-func (s *server) AddPowerbankToStationWebAPI() http.HandlerFunc {
+func (s *server) AddPowerbankToStationWebAPI(w http.ResponseWriter, r *http.Request) {
+
 	type request struct {
 		PowerbankId int `json:"powerbankId"`
 		StationId   int `json:"stationId"`
+		Position    int `json:"position"`
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		powerbankId, err := strconv.Atoi(vars["powerbank_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
-			return
-		}
-		stationId, err := strconv.Atoi(vars["station_id"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
-			return
-		}
-		req := &request{
-			PowerbankId: powerbankId,
-			StationId:   stationId,
-		}
-
-		err = s.useCase.AddPowerbankToStation(req.PowerbankId, req.StationId)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
-			return
-		}
-		s.respond(w, r, http.StatusOK, nil)
+	vars := mux.Vars(r)
+	powerbankId, err := strconv.Atoi(vars["powerbank_id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
+		return
 	}
+	stationId, err := strconv.Atoi(vars["station_id"])
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
+		return
+	}
+	req := &request{
+		PowerbankId: powerbankId,
+		StationId:   stationId,
+	}
+
+	err = s.useCase.AddPowerbankToStation(req.PowerbankId, req.StationId, req.Position)
+	if err != nil {
+		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("AddPowerbankToStationWebAPI - %w", err))
+		return
+	}
+	s.respond(w, r, http.StatusOK, nil)
 }

@@ -47,19 +47,19 @@ func (r *Repo) GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) {
 	return entities, nil
 }
 
-func (r *Repo) insertStationPowerbank(powerbankId int, stationID int) error {
+func (r *Repo) InsertStationPowerbank(powerbankId int, stationId int, position int) error {
 	sql, args, err := r.Builder.
 		Insert("public.tbl_station_powerbank").
-		Columns("station_id, powerbank_id").
-		Values(stationID, powerbankId).
+		Columns("station_id, powerbank_id, position").
+		Values(stationId, powerbankId, position).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("insertStationPowerbank - r.Builder: %w", err)
+		return fmt.Errorf("InsertStationPowerbank - r.Builder: %w", err)
 	}
 	ctx := context.Background()
 	_, err = r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
-		return fmt.Errorf("insertStationPowerbank - r.Pool.Exec: %w", err)
+		return fmt.Errorf("InsertStationPowerbank - r.Pool.Exec: %w", err)
 	}
 
 	return nil
@@ -125,7 +125,7 @@ func (r *Repo) deleteUserPowerbank(userId int, powerbankId int) error {
 }
 
 // TakePowerbankRepo take user powerbank
-func (r *Repo) TakePowerbank(userId int, powerbankId int, stationID int) error {
+func (r *Repo) TakePowerbank(userId int, powerbankId int, stationId int) error {
 
 	sql, args, err := r.Builder.
 		Insert("tbl_user_powerbank").
@@ -142,7 +142,7 @@ func (r *Repo) TakePowerbank(userId int, powerbankId int, stationID int) error {
 		return err
 	}
 
-	//err := r.insertUserPowerbank(userId, powerbankId, stationID)
+	//err := r.insertUserPowerbank(userId, powerbankId, stationId)
 	//if err != nil {
 	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
 	//}
@@ -158,7 +158,7 @@ func (r *Repo) TakePowerbank(userId int, powerbankId int, stationID int) error {
 		return err
 	}
 
-	//err = r.deleteStationPowerbank(stationID, powerbankId)
+	//err = r.deleteStationPowerbank(stationId, powerbankId)
 	//if err != nil {
 	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
 	//}
@@ -166,20 +166,20 @@ func (r *Repo) TakePowerbank(userId int, powerbankId int, stationID int) error {
 	return nil
 }
 
-func (r *Repo) PutPowerbankRepo(userId int, powerbankId int, stationID int) error {
+func (r *Repo) PutPowerbankRepo(userId int, powerbankId int, stationId int, position int) error {
 	err := r.deleteUserPowerbank(userId, powerbankId)
 	if err != nil {
 		return fmt.Errorf("BackTakePowerbankRepo - %w", err)
 	}
-	err = r.insertStationPowerbank(stationID, powerbankId)
+	err = r.InsertStationPowerbank(powerbankId, stationId, position)
 	if err != nil {
 		return fmt.Errorf("BackTakePowerbankRepo - %w", err)
 	}
 	return nil
 }
 
-func (r *Repo) AddPowerbankToStationRepo(powerbankId int, stationID int) error {
-	err := r.insertStationPowerbank(stationID, powerbankId)
+func (r *Repo) AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error {
+	err := r.InsertStationPowerbank(powerbankId, stationId, position)
 	if err != nil {
 		return fmt.Errorf("AddPowerbankToStationRepo - %w", err)
 	}

@@ -115,7 +115,7 @@ func (c *mqttMiddlewareV1Client) ResetCabinet(ctx context.Context, in *CommandRe
 
 func (c *mqttMiddlewareV1Client) Subscribe(ctx context.Context, in *Device, opts ...grpc.CallOption) (*ResponseString, error) {
 	out := new(ResponseString)
-	err := c.cc.Invoke(ctx, "/wcharge_mqtt.MqttMiddlewareV1/Subscribe", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/wcharge_mqtt.MqttMiddlewareV1/SubscribeMqtt", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (UnimplementedMqttMiddlewareV1Server) ResetCabinet(context.Context, *Comman
 	return nil, status.Errorf(codes.Unimplemented, "method ResetCabinet not implemented")
 }
 func (UnimplementedMqttMiddlewareV1Server) Subscribe(context.Context, *Device) (*ResponseString, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method SubscribeMqtt not implemented")
 }
 func (UnimplementedMqttMiddlewareV1Server) mustEmbedUnimplementedMqttMiddlewareV1Server() {}
 
@@ -336,7 +336,7 @@ func _MqttMiddlewareV1_Subscribe_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/wcharge_mqtt.MqttMiddlewareV1/Subscribe",
+		FullMethod: "/wcharge_mqtt.MqttMiddlewareV1/SubscribeMqtt",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MqttMiddlewareV1Server).Subscribe(ctx, req.(*Device))
@@ -384,7 +384,7 @@ var MqttMiddlewareV1_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MqttMiddlewareV1_ResetCabinet_Handler,
 		},
 		{
-			MethodName: "Subscribe",
+			MethodName: "SubscribeMqtt",
 			Handler:    _MqttMiddlewareV1_Subscribe_Handler,
 		},
 	},

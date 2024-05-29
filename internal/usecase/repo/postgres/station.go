@@ -12,22 +12,32 @@ import (
 
 var tableStation = "tbl_stations"
 
-func (r *Repo) CreateStationRepo(s entity.Station) error {
+func (r *Repo) CreateStationRepo(s entity.Station) (*entity.Station, error) {
 	sql, args, err := r.Builder.
 		Insert(tableStation).
 		Columns("serial_number, address_id, capacity, free_capacity").
 		Values(s.SerialNumber, s.AddressId, s.Capacity, s.FreeCapacity).
+		Suffix("returning id").
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - CreateStationRepo - r.Builder: %w", err)
+		return nil, err //fmt.Errorf("PostgresRepo - CreateStationRepo - r.Builder: %w", err)
 	}
 	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	row := r.Pool.QueryRow(ctx, sql, args...)
+
+	//query := squirrel.Insert("tbl_stations").
+	//	Columns("serial_number, address_id, capacity, free_capacity").
+	//	Values(s.SerialNumber, s.AddressId, s.Capacity, s.FreeCapacity).
+
+	err = row.Scan(
+		&s.ID,
+	)
+
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - CreateStationRepo - r.Pool.Exec: %w", err)
+		return nil, err //fmt.Errorf("PostgresRepo - CreateStationRepo - r.Pool.Exec: %w", err)
 	}
 
-	return nil
+	return &s, nil
 }
 
 func (r *Repo) UpdateStationRepo(id int, s entity.Station) error {

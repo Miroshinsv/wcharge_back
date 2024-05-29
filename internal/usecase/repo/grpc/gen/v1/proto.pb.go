@@ -87,7 +87,7 @@ func (CommandType) EnumDescriptor() ([]byte, []int) {
 	return file_proto_proto_rawDescGZIP(), []int{0}
 }
 
-// Subscribe
+// SubscribeMqtt
 type ResponseString struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2554,7 +2554,7 @@ var file_proto_proto_depIdxs = []int32{
 	17, // 25: wcharge_mqtt.MqttMiddlewareV1.QuerySIMCardICCID:input_type -> wcharge_mqtt.CommandSIMCardICCID
 	20, // 26: wcharge_mqtt.MqttMiddlewareV1.QueryNetworkInformation:input_type -> wcharge_mqtt.CommandNetworkInformation
 	23, // 27: wcharge_mqtt.MqttMiddlewareV1.ResetCabinet:input_type -> wcharge_mqtt.CommandResetCabinet
-	2,  // 28: wcharge_mqtt.MqttMiddlewareV1.Subscribe:input_type -> wcharge_mqtt.Device
+	2,  // 28: wcharge_mqtt.MqttMiddlewareV1.SubscribeMqtt:input_type -> wcharge_mqtt.Device
 	25, // 29: wcharge_mqtt.MainServerV1.ReturnPowerBank:input_type -> wcharge_mqtt.RequestReturnPowerBank
 	28, // 30: wcharge_mqtt.MainServerV1.ReportCabinetLogin:input_type -> wcharge_mqtt.RequestReportCabinetLogin
 	6,  // 31: wcharge_mqtt.MqttMiddlewareV1.PushPowerBank:output_type -> wcharge_mqtt.ResponsePush
@@ -2565,7 +2565,7 @@ var file_proto_proto_depIdxs = []int32{
 	18, // 36: wcharge_mqtt.MqttMiddlewareV1.QuerySIMCardICCID:output_type -> wcharge_mqtt.ResponseSIMCardICCID
 	21, // 37: wcharge_mqtt.MqttMiddlewareV1.QueryNetworkInformation:output_type -> wcharge_mqtt.ResponseNetworkInformation
 	24, // 38: wcharge_mqtt.MqttMiddlewareV1.ResetCabinet:output_type -> wcharge_mqtt.ResponseResetCabinet
-	1,  // 39: wcharge_mqtt.MqttMiddlewareV1.Subscribe:output_type -> wcharge_mqtt.ResponseString
+	1,  // 39: wcharge_mqtt.MqttMiddlewareV1.SubscribeMqtt:output_type -> wcharge_mqtt.ResponseString
 	27, // 40: wcharge_mqtt.MainServerV1.ReturnPowerBank:output_type -> wcharge_mqtt.ResponseReturnPowerBank
 	30, // 41: wcharge_mqtt.MainServerV1.ReportCabinetLogin:output_type -> wcharge_mqtt.ResponseReportCabinetLogin
 	31, // [31:42] is the sub-list for method output_type

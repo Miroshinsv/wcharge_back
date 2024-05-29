@@ -2,7 +2,10 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	"github.com/streadway/amqp"
 
 	"github.com/Miroshinsv/wcharge_back/config"
 	v1 "github.com/Miroshinsv/wcharge_back/internal/controller/http/v1"
@@ -37,6 +40,129 @@ func Run(cfg *config.Config) {
 		m,
 	)
 
+	test(useCase)
+
 	// HTTP Server
 	v1.Start(cfg, useCase, l)
+}
+
+func test(u *usecase.UseCase) {
+	cfg, _ := config.NewConfig()
+	conn, _ := amqp.Dial(cfg.Rabbit.URL)
+	defer conn.Close()
+
+	ch, _ := conn.Channel()
+	defer ch.Close()
+
+	err := ch.ExchangeDeclare(
+		"mqtt_test", // name
+		"topic",     // type
+		true,        // durable
+		false,       // auto-deleted
+		false,       // internal
+		false,       // no-wait
+		nil,         // arguments
+	)
+
+	if err != nil {
+
+	}
+
+	q, err := ch.QueueDeclare(
+		"",    // name
+		false, // durable
+		false, // delete when unused
+		true,  // exclusive
+		false, // no-wait
+		nil,   // arguments
+	)
+	err = ch.QueueBind(
+		q.Name,      // queue name
+		"",          // routing key
+		"mqtt_test", // exchange
+		false,
+		nil,
+	)
+
+	msgs, err := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+
+	type Data struct {
+		T int
+		D string
+	}
+
+	var forever chan struct{}
+
+	go func() {
+		type Powerbank struct {
+			Position     int
+			SerialNumber string
+			Capacity     int
+			Used         int
+		}
+
+		type FullStation struct {
+			SerialNumber string
+			Capacity     int
+			Powerbanks   []Powerbank
+		}
+
+		var msg FullStation
+
+		for d := range msgs {
+			err := json.Unmarshal(d.Body, &msg)
+
+			if err != nil {
+				continue
+			}
+
+			if msg.SerialNumber != "" {
+				station, err := u.CreateStation(
+					entity.Station{
+						SerialNumber: msg.SerialNumber,
+						Capacity:     msg.Capacity,
+						AddressId:    1,
+					},
+				)
+
+				if err != nil {
+					continue
+				}
+
+				for _, p := range msg.Powerbanks {
+					powerbank, err := u.CreatePowerbank(
+						entity.Powerbank{
+							Position:     p.Position,
+							SerialNumber: p.SerialNumber,
+						},
+					)
+
+					if err != nil {
+						break
+					}
+
+					err = u.AddPowerbankToStation(powerbank.ID, station.ID, p.Position)
+
+					if err != nil {
+						break
+					}
+
+				}
+			}
+		}
+
+		//if msg.SerialNumber != "" {
+		//
+		//}
+	}()
+
+	<-forever
 }

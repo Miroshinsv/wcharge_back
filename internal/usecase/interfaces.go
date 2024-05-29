@@ -49,7 +49,7 @@ type (
 	}
 
 	StationRepo interface {
-		CreateStationRepo(entity.Station) error
+		CreateStationRepo(entity.Station) (*entity.Station, error)
 		UpdateStationRepo(int, entity.Station) error
 		DeleteStationRepo(int) error
 		GetStationRepo(int) (entity.Station, error)
@@ -68,7 +68,7 @@ type (
 	}
 
 	PowerbankRepo interface {
-		CreatePowerbankRepo(entity.Powerbank) error
+		CreatePowerbankRepo(entity.Powerbank) (*entity.Powerbank, error)
 		UpdatePowerbankRepo(int, entity.Powerbank) error
 		DeletePowerbankRepo(int) error
 		GetPowerbankRepo(int) (entity.Powerbank, error)
@@ -119,6 +119,6 @@ type (
 		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
 		TakePowerbank(userId int, powerbankId int, stationId int) error
 		PutPowerbankRepo(userId int, powerbankId int, stationId int) error
-		AddPowerbankToStationRepo(powerbankId int, stationId int) error
+		AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error
 	}
 )

@@ -7,11 +7,12 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App  `yaml:"app"`
-		HTTP `yaml:"http"`
-		Log  `yaml:"logger"`
-		PG   `yaml:"postgres"`
-		GRPC `yaml:"grpc"`
+		App    `yaml:"app"`
+		HTTP   `yaml:"http"`
+		Log    `yaml:"logger"`
+		PG     `yaml:"postgres"`
+		GRPC   `yaml:"grpc"`
+		Rabbit `yaml:"rabbit"`
 	}
 
 	// App -.
@@ -39,6 +40,12 @@ type (
 
 	GRPC struct {
 		URL string `env-required:"true" yaml:"url" env:"GRPC_URL"`
+	}
+
+	// Rabbit -.
+	Rabbit struct {
+		URL      string `env-required:"true" yaml:"url"       env:"RABBIT_URL"`
+		ClientID string `env-required:"true" yaml:"client_id" env:"RABBIT_CLIENT_ID"`
 	}
 )
 

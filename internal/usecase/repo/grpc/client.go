@@ -2,7 +2,6 @@ package grpcclient
 
 import (
 	"context"
-
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 	pb "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/grpc/gen/v1" // Замените на путь к вашему сгенерированному gRPC коду
@@ -23,6 +22,8 @@ func NewMqttV1Client(cfg *config.Config, l *logger.Logger) (*MqttV1Client, error
 	}
 
 	service := pb.NewMqttMiddlewareV1Client(conn) // Замените NewYourServiceClient на функцию создания клиента вашего сервиса
+
+	//test()
 
 	return &MqttV1Client{
 		logger:  l,
