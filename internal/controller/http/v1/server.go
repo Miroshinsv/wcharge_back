@@ -3,7 +3,10 @@ package v1
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
+	//"github.com/rs/zerolog/log"
+	//"github.com/rs/zerolog/log"
+	//"github.com/slukits/graylog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,7 +15,6 @@ import (
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
 	"github.com/Miroshinsv/wcharge_back/pkg/httpserver"
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
@@ -35,24 +37,24 @@ type server struct {
 	apiRouter    *mux.Router
 	useCase      *usecase.UseCase
 	sessionStore sessions.Store
-	logger       logger.Interface
+	//logger       *graylog.Logger
 }
 
-func NewServer(u *usecase.UseCase, sessionStore sessions.Store, l logger.Interface) *server {
+func NewServer(u *usecase.UseCase, sessionStore sessions.Store) *server {
 	s := &server{
 		router:       mux.NewRouter(),
 		useCase:      u,
 		sessionStore: sessionStore,
-		logger:       l,
+		//logger:       l,
 	}
 	return s
 }
 
-func Start(cfg *config.Config, u *usecase.UseCase, l logger.Interface) {
+func Start(cfg *config.Config, u *usecase.UseCase) {
 
 	sessionsStore := sessions.NewCookieStore([]byte(cfg.SessionHttpKey))
 
-	srv := NewServer(u, sessionsStore, l)
+	srv := NewServer(u, sessionsStore)
 	srv.NewHttpRouter()
 	httpServer := httpserver.New(srv.router, httpserver.Port(cfg.HTTP.Port))
 
@@ -61,15 +63,15 @@ func Start(cfg *config.Config, u *usecase.UseCase, l logger.Interface) {
 
 	select {
 	case s := <-interrupt:
-		l.Info("app - Run - signal: " + s.String())
+		log.Printf("app - Run - signal: " + s.String())
 	case err := <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
+		log.Printf("app - Run - httpServer.Notify: %w", err)
 	}
 
 	// Shutdown
 	err := httpServer.Shutdown()
 	if err != nil {
-		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
+		log.Printf("app - Run - httpServer.Shutdown: %w", err)
 	}
 }
 

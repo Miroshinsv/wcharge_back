@@ -4,34 +4,59 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	"github.com/streadway/amqp"
-
 	"github.com/Miroshinsv/wcharge_back/config"
 	v1 "github.com/Miroshinsv/wcharge_back/internal/controller/http/v1"
-	grpcclient "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/grpc"
-
+	"github.com/Miroshinsv/wcharge_back/internal/entity"
 	"github.com/Miroshinsv/wcharge_back/internal/usecase"
+	grpcclient "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/grpc"
 	repo "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/postgres"
-
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
 	"github.com/Miroshinsv/wcharge_back/pkg/postgres"
+	"github.com/streadway/amqp"
 )
 
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
-	l := logger.New(cfg.Log.Level)
+	//l := logger.New(cfg.Log.Level)
+
+	// init graylog logger
+	//log, err := graylog.Dial("tcp", "localhost:5555")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer log.Close()
+	//
+	//// send info message with attributes
+	//log.Info("Test message.\nMore info...",
+	//	slog.Any("log", log),
+	//	slog.Bool("bool", true),
+	//	slog.Time("now", time.Now()),
+	//	slog.LevelWarn,
+	//	slog.String("stream", ""),
+	//	slog.Group("group",
+	//		slog.String("str", "string value"),
+	//		slog.Duration("duration", time.Hour/3)),
+	//	slog.Any("struct", struct {
+	//		Test string `json:"test"`
+	//	}{Test: "test"}),
+	//)
+
+	// register as default
+	//slog.SetDefault(log.Logger)
+
+	//log.Info("Successful connect")
+	//log.Warn("")
+
 	fmt.Println(cfg)
 	// Repository
 	pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
 	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		//	l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
 	}
 	defer pg.Close()
 
-	m, err := grpcclient.NewMqttV1Client(cfg, l)
+	m, err := grpcclient.NewMqttV1Client(cfg)
 	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
+		//	l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
 	}
 
 	// Use case
@@ -43,7 +68,7 @@ func Run(cfg *config.Config) {
 	test(useCase)
 
 	// HTTP Server
-	v1.Start(cfg, useCase, l)
+	v1.Start(cfg, useCase)
 }
 
 func test(u *usecase.UseCase) {

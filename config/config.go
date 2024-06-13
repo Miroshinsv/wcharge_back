@@ -7,12 +7,13 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App    `yaml:"app"`
-		HTTP   `yaml:"http"`
-		Log    `yaml:"logger"`
-		PG     `yaml:"postgres"`
-		GRPC   `yaml:"grpc"`
-		Rabbit `yaml:"rabbit"`
+		App     `yaml:"app"`
+		HTTP    `yaml:"http"`
+		Log     `yaml:"logger"`
+		PG      `yaml:"postgres"`
+		GRPC    `yaml:"grpc"`
+		Rabbit  `yaml:"rabbit"`
+		Graylog `yaml:"graylog"`
 	}
 
 	// App -.
@@ -40,6 +41,10 @@ type (
 
 	GRPC struct {
 		URL string `env-required:"true" yaml:"url" env:"GRPC_URL"`
+	}
+
+	Graylog struct {
+		URL string `env-required:"true" yaml:"url" env:"GRAYLOG_URL"`
 	}
 
 	// Rabbit -.

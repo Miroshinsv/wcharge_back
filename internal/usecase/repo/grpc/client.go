@@ -2,20 +2,24 @@ package grpcclient
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 	pb "github.com/Miroshinsv/wcharge_back/internal/usecase/repo/grpc/gen/v1" // Замените на путь к вашему сгенерированному gRPC коду
-	"github.com/Miroshinsv/wcharge_back/pkg/logger"
+	"strconv"
+
+	//"github.com/Miroshinsv/wcharge_back/pkg/logger"
+	"github.com/slukits/graylog"
 	"google.golang.org/grpc"
 )
 
 type MqttV1Client struct {
-	logger  *logger.Logger
+	logger  *graylog.Logger
 	conn    *grpc.ClientConn
 	service pb.MqttMiddlewareV1Client // Замените YourServiceClient на название вашего сервиса
 }
 
-func NewMqttV1Client(cfg *config.Config, l *logger.Logger) (*MqttV1Client, error) {
+func NewMqttV1Client(cfg *config.Config) (*MqttV1Client, error) {
 	conn, err := grpc.Dial(cfg.GRPC.URL, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
@@ -26,7 +30,7 @@ func NewMqttV1Client(cfg *config.Config, l *logger.Logger) (*MqttV1Client, error
 	//test()
 
 	return &MqttV1Client{
-		logger:  l,
+		//logger:  l,
 		conn:    conn,
 		service: service,
 	}, nil
@@ -54,7 +58,7 @@ func (c *MqttV1Client) PushPowerBank(ctx context.Context, st *entity.Station, pw
 		c.logger.Info("MqttV1Client - PushPowerBank - c.service.PushPowerBank - err")
 		return false, err
 	} else {
-		c.logger.Debug(req.RlResult)
+		c.logger.Debug(strconv.Itoa(int(req.RlResult)))
 	}
 	return true, nil
 }
@@ -81,7 +85,8 @@ func (c *MqttV1Client) QueryInventory(ctx context.Context, st *entity.Station) (
 		c.logger.Info("MqttV1Client - QueryInventory - c.service.QueryInventory - err")
 		return req, err
 	} else {
-		c.logger.Debug(req)
+		r, _ := json.Marshal(req)
+		c.logger.Debug(string(r))
 	}
 	return req, nil
 }

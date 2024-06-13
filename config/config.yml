@@ -20,3 +20,6 @@ grpc:
 rabbit:
   url: 'amqp://guest:guest@89.111.154.223:5672/'
   client_id: '10002'
+
+graylog:
+  url: 'localhost:12201'

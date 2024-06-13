@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	//"github.com/rs/zerolog/log"
+	"log"
 
 	// Swagger docs.
 	_ "github.com/Miroshinsv/wcharge_back/docs"
@@ -59,18 +61,18 @@ func (w *responseWriter) WriteHeader(statusCode int) {
 
 func (s *server) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Info("started %s %s", r.Method, r.RequestURI)
+		log.Printf("started %s %s", r.Method, r.RequestURI)
 		start := time.Now()
 		rw := &responseWriter{w, http.StatusOK}
 		next.ServeHTTP(rw, r)
 
 		switch {
 		case rw.code >= 500:
-			s.logger.Error("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
+			log.Printf("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
 		case rw.code >= 400:
-			s.logger.Warn("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
+			log.Printf("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
 		default:
-			s.logger.Info("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
+			log.Printf("completed with %d %s in %v", rw.code, http.StatusText(rw.code), time.Now().Sub(start))
 		}
 	})
 }
