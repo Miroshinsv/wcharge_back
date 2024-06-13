@@ -21,7 +21,7 @@ func main() {
 	}
 
 	log.SetOutput(gelfWriter)
-	//log.Println("Это информационное сообщение")
+	log.Println("BACK. Это информационное сообщение")
 	//log.Printf("Это сообщение с форматированием: %s", "пример")
 	//err = someFunction()
 	//if err != nil {
