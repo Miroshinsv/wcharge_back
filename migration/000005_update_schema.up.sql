@@ -4,7 +4,7 @@ SET TIME ZONE 'Europe/Moscow';
 -- Таблица адресов
 CREATE TABLE addresses
 (
-    id      integer PRIMARY KEY,
+    id      serial PRIMARY KEY,
     country text             NOT NULL,
     city    text             NOT NULL,
     address text             NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE addresses
 -- таблца ролей
 CREATE TABLE roles
 (
-    id         integer PRIMARY KEY,
+    id         serial PRIMARY KEY,
     name       text    NOT NULL UNIQUE,
     privileges integer NOT NULL
 );
@@ -34,14 +34,14 @@ VALUES ('user', 2);
 -- Таблица пользователей
 CREATE TABLE users
 (
-    id            integer PRIMARY KEY,
+    id            serial PRIMARY KEY,
     username      text NOT NULL UNIQUE,
     email         text NOT NULL UNIQUE,
     role          integer     DEFAULT 3,
     phone         text        DEFAULT '',
     password_hash text NOT NULL,
     password_salt text NOT NULL,
-    address       integer     DEFAULT 1,
+    address       integer,
     removed       boolean     DEFAULT false,
     created_at    TIMESTAMPTZ DEFAULT NOW(),
     updated_at    TIMESTAMPTZ DEFAULT NOW(),
@@ -63,7 +63,7 @@ values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3Snh
 
 -- Таблица заказов
 --CREATE TABLE orders (
---    id integer PRIMARY KEY AUTO_INCREMENT,
+--    id serial PRIMARY KEY AUTO_INCREMENT,
 --    user_id integer NOT NULL,
 --    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 --    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +74,7 @@ values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3Snh
 -- Таблица powerbanks
 CREATE TABLE powerbanks
 (
-    id            integer PRIMARY KEY,
+    id            serial PRIMARY KEY,
     serial_number text             NOT NULL,
     capacity      double precision NULL NULL,
     used          boolean     DEFAULT false,
@@ -96,7 +96,7 @@ CREATE TABLE powerbanks
 
 CREATE TABLE stations
 (
-    id            integer PRIMARY KEY,
+    id            serial PRIMARY KEY,
     serial_number text             NOT NULL,
     address       integer     DEFAULT 1,
     capacity      double precision NULL NULL,
@@ -117,7 +117,7 @@ CREATE TABLE stations
 
 CREATE TABLE rel__stations__powerbanks
 (
---     id           integer PRIMARY KEY,
+--     id           serial PRIMARY KEY,
     station    integer NOT NULL,
     powerbank  integer NOT NULL,
     position   integer,
@@ -137,7 +137,7 @@ CREATE TABLE rel__stations__powerbanks
 
 CREATE TABLE rel__users__powerbanks
 (
---     id           integer PRIMARY KEY,
+--     id           serial PRIMARY KEY,
     "user"     integer NOT NULL,
     powerbank  integer NOT NULL,
     created_ad TIMESTAMPTZ DEFAULT NOW(),
@@ -189,7 +189,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 
 CREATE TRIGGER set_timestamp_delete_powerbank
     BEFORE UPDATE OF removed
