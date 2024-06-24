@@ -2,11 +2,7 @@ package main
 
 import (
 	"github.com/Miroshinsv/wcharge_back/config"
-	"github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/Miroshinsv/wcharge_back/internal/app"
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"log"
 )
@@ -26,17 +22,17 @@ func main() {
 	log.SetPrefix("BACK__")
 	log.SetOutput(gelfWriter)
 
-	docs.SwaggerInfo.Title = "Swagger WeCharge API"
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = cfg.Swagger.URL
-	docs.SwaggerInfo.BasePath = "/api/v1"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-	r := gin.New()
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	err = r.Run(":8989")
-	if err != nil {
-		log.Printf("Error - Swagger - Gin - Run: %s", err)
-	}
+	//docs.SwaggerInfo.Title = "Swagger WeCharge API"
+	//docs.SwaggerInfo.Version = "1.0"
+	//docs.SwaggerInfo.Host = cfg.Swagger.URL
+	//docs.SwaggerInfo.BasePath = "/api/v1"
+	//docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	//r := gin.New()
+	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//err = r.Run(":8989")
+	//if err != nil {
+	//	log.Printf("Error - Swagger - Gin - Run: %s", err)
+	//}
 
 	app.Run(cfg)
 }

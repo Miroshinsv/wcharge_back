@@ -4,7 +4,11 @@ package v1
 import (
 	"context"
 	"fmt"
+	"github.com/Miroshinsv/wcharge_back/config"
+	"github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	//httpSwagger "github.com/swaggo/http-swagger"
 
 	//"github.com/rs/zerolog/log"
@@ -28,6 +32,17 @@ func (s *server) NewHttpRouter() {
 
 	s.apiRouter = s.router.PathPrefix("/api/v1").Subrouter()
 
+	//s.apiRouter.HandleFunc(
+	//	"/swagger/*",
+	//	httpSwagger.Handler(httpSwagger.URL("docs/swagger.json")),
+	//)
+	//r := gin.New()
+	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//err = r.Run(":8989")
+	//if err != nil {
+	//	log.Printf("Error - Swagger - Gin - Run: %s", err)
+	//}
+
 	// TODO
 	//s.apiRouter.Use(s.authenticateUser)
 
@@ -38,6 +53,14 @@ func (s *server) NewHttpRouter() {
 	s.newPowerbankRoutes()
 	s.newAddressRoutes()
 	s.newUserActionsRoutes()
+
+	cfg, _ := config.NewConfig()
+	docs.SwaggerInfo.Title = "Swagger WeCharge API"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = cfg.Swagger.URL
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	s.router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 }
 
 func (s *server) handleWhoAmI() http.HandlerFunc {
