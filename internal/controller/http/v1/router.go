@@ -5,27 +5,32 @@ import (
 	"context"
 	"fmt"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	//httpSwagger "github.com/swaggo/http-swagger"
+
 	//"github.com/rs/zerolog/log"
 	"log"
 
 	// Swagger docs.
-	_ "github.com/Miroshinsv/wcharge_back/docs"
+	//_ "github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
 
 // NewHttpRouter -.
-// @version     1.0
+// @version     2.0
 // @host        localhost:8080
-// @BasePath    /v1
+// @BasePath    /api/v1
 func (s *server) NewHttpRouter() {
 	s.router.Use(s.setRequestID)
 	s.router.Use(s.logRequest)
 	s.router.Use(s.commonMiddleware)
 
 	s.apiRouter = s.router.PathPrefix("/api/v1").Subrouter()
-	s.apiRouter.Use(s.authenticateUser)
+
+	// TODO
+	//s.apiRouter.Use(s.authenticateUser)
+
 	s.apiRouter.HandleFunc("/whoami", s.handleWhoAmI()).Methods(http.MethodGet)
 
 	s.newUserRoutes()

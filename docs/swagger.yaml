@@ -1,4 +1,166 @@
+basePath: /api/v1
+definitions:
+  entity.Address:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      id:
+        type: integer
+      lat:
+        type: number
+      lng:
+        type: number
+    type: object
+  entity.Powerbank:
+    properties:
+      capacity:
+        description: объем заряда
+        type: number
+      create_at:
+        type: string
+      delete_at:
+        type: string
+      id:
+        type: integer
+      position:
+        type: integer
+      removed:
+        type: boolean
+      serial_number:
+        type: string
+      update_at:
+        type: string
+      used:
+        description: сколько уже использована банка в часах // up юзается или нет
+        type: boolean
+    type: object
+  entity.Station:
+    properties:
+      address:
+        type: integer
+      address_full:
+        $ref: '#/definitions/entity.Address'
+      capacity:
+        type: number
+      create_at:
+        type: string
+      delete_at:
+        type: string
+      free_capacity:
+        type: number
+      id:
+        type: integer
+      powerbanks:
+        items:
+          $ref: '#/definitions/entity.Powerbank'
+        type: array
+      removed:
+        type: boolean
+      serial_number:
+        type: string
+      update_at:
+        type: string
+    type: object
+host: localhost:8080
 info:
   contact: {}
-paths: {}
+  version: "2.0"
+paths:
+  /stations:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Station'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get info about all stations
+    post:
+      parameters:
+      - description: Serial number of station
+        in: body
+        name: SerialNumber
+        required: true
+        schema:
+          type: string
+      - description: Address ID
+        in: body
+        name: Address
+        required: true
+        schema:
+          type: integer
+      - description: Full capacity on station
+        in: body
+        name: Capacity
+        required: true
+        schema:
+          type: number
+      - description: Free capacity on station
+        in: body
+        name: FreeCapacity
+        required: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Station'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create station
+    put:
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Address ID
+        in: body
+        name: Address
+        required: true
+        schema:
+          type: integer
+      - description: Free capacity on station
+        in: body
+        name: FreeCapacity
+        required: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Station'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create station
+  /stations/{id}:
+    get:
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Station'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get info about station
 swagger: "2.0"

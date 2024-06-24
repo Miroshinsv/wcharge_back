@@ -2,172 +2,212 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"github.com/Masterminds/squirrel"
-	"time"
-
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	//"github.com/Miroshinsv/wcharge_back/pkg/postgres"
+	"log"
 )
 
-var tableStation = "tbl_stations"
-
-func (r *Repo) CreateStationRepo(s entity.Station) (*entity.Station, error) {
+func (r *Repo) CreateStation(s entity.Station) (*entity.Station, error) {
 	sql, args, err := r.Builder.
-		Insert(tableStation).
-		Columns("serial_number, address_id, capacity, free_capacity").
-		Values(s.SerialNumber, s.AddressId, s.Capacity, s.FreeCapacity).
-		Suffix("returning id").
+		Insert(stationsTableName).
+		Columns("serial_number, address, capacity, free_capacity").
+		Values(s.SerialNumber, s.Address, s.Capacity, s.FreeCapacity).
 		ToSql()
 	if err != nil {
-		return nil, err //fmt.Errorf("PostgresRepo - CreateStationRepo - r.Builder: %w", err)
+		log.Printf("Error - Repo - CreateStation - r.Builder: %w", err)
+		return nil, err
 	}
-	ctx := context.Background()
-	row := r.Pool.QueryRow(ctx, sql, args...)
 
-	//query := squirrel.Insert("tbl_stations").
-	//	Columns("serial_number, address_id, capacity, free_capacity").
-	//	Values(s.SerialNumber, s.AddressId, s.Capacity, s.FreeCapacity).
-
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
 	err = row.Scan(
 		&s.ID,
+		&s.SerialNumber,
+		&s.Address,
+		&s.Capacity,
+		&s.FreeCapacity,
+		&s.CreateAt,
+		&s.UpdateAt,
 	)
-
 	if err != nil {
-		return nil, err //fmt.Errorf("PostgresRepo - CreateStationRepo - r.Pool.Exec: %w", err)
+		log.Printf("Error - Repo - CreateStation - r.Pool.QueryRow: %s", err)
+		return nil, err
 	}
 
 	return &s, nil
 }
 
-func (r *Repo) UpdateStationRepo(id int, s entity.Station) error {
+func (r *Repo) UpdateStation(s entity.Station, id int) (*entity.Station, error) {
 	sql, args, err := r.Builder.
-		Update(tableStation).
-		Set("address_id", s.AddressId).
+		Update(stationsTableName).
+		Set("address", s.Address).
 		Set("free_capacity", s.FreeCapacity).
-		Set("updated_at", time.Now()).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - UpdateStationRepo - r.Builder: %w", err)
+		log.Printf("Error - Repo - UpdateStation - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	err = row.Scan(
+		&s.ID,
+		&s.SerialNumber,
+		&s.Address,
+		&s.Capacity,
+		&s.FreeCapacity,
+		&s.CreateAt,
+		&s.UpdateAt,
+	)
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - UpdateStationRepo - r.Pool.Query: %w", err)
+		log.Printf("Error - Repo - UpdateStation - r.Pool.QueryRow: %s", err)
+		return nil, err
 	}
-	return nil
+	return &s, nil
 }
 
 func (r *Repo) DeleteStationRepo(id int) error {
 	sql, args, err := r.Builder.
-		Update(tableStation).
-		Set("removed", 1).
+		Update(stationsTableName).
+		Set("removed", true).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - DeleteStationRepo - r.Builder: %w", err)
+		log.Printf("Error - Repo - DeleteStation - r.Builder: %s", err)
+		return err
 	}
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - DeleteStationRepo - r.Pool.Query: %w", err)
+		log.Printf("Error - Repo - DeleteStation - r.Pool.Exec: %s", err)
+		return err
 	}
 	return nil
 }
 
-func (r *Repo) GetStationRepo(id int) (entity.Station, error) {
-	s := entity.Station{}
+func (r *Repo) GetStation(id int) (*entity.Station, error) {
 	sql, args, err := r.Builder.
-		Select("id, serial_number, address_id, capacity, free_capacity, removed,created_at, updated_at, deleted_at").
-		From(tableStation).
-		Where(squirrel.Eq{"id": id}).
+		Select("stations.id, serial_number, addresses.*").
+		From(stationsTableName).
+		Join("addresses on stations.address = addresses.id").
+		Where(squirrel.And{
+			squirrel.Eq{"stations.id": id},
+			squirrel.Eq{"removed": false},
+		}).
 		ToSql()
 	if err != nil {
-		return s, fmt.Errorf("PostgresRepo - GetStationRepo - r.Builder: %w", err)
-	}
-	ctx := context.Background()
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	if err != nil {
-		return s, fmt.Errorf("PostgresRepo - GetUserRepo - r.Pool.Query: %w", err)
+		log.Printf("PostgresRepo - GetStationRepo - r.Builder: %s", err)
+		return nil, err
 	}
 
-	err = row.Scan(&s.ID, &s.SerialNumber, &s.AddressId, &s.Capacity, &s.FreeCapacity, &s.Removed, &s.CreateAt, &s.UpdateAt, &s.DeleteAt)
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
 	if err != nil {
-		return s, fmt.Errorf("PostgresRepo - GetStationRepo - rows.Scan: %w", err)
+		log.Printf("PostgresRepo - GetUserRepo - r.Pool.Query: %s", err)
+		return nil, err
+	}
+	s := entity.Station{}
+	err = row.Scan(
+		&s.ID,
+		&s.SerialNumber,
+
+		&s.AddressFull.ID,
+		&s.AddressFull.City,
+		&s.AddressFull.Country,
+		&s.AddressFull.Address,
+		&s.AddressFull.Lng,
+		&s.AddressFull.Lat,
+	)
+	if err != nil {
+		log.Printf("PostgresRepo - GetStationRepo - rows.Scan: %s", err)
+		return nil, err
 	}
 
-	return s, nil
+	return &s, nil
 }
 
-func (r *Repo) GetStationsRepo() ([]entity.Station, error) {
-	sql, _, err := r.Builder.
-		Select("id, serial_number, address_id, capacity, free_capacity, removed, created_at, updated_at, deleted_at").
-		From(tableStation).
+func (r *Repo) GetStations() (*[]entity.Station, error) {
+	sql, args, err := r.Builder.
+		Select("stations.id, serial_number, addresses.*").
+		From(stationsTableName).
+		Join("addresses on stations.address = addresses.id").
+		Where(squirrel.And{
+			squirrel.Eq{"removed": false},
+		}).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("Repo - GetStationsRepo - r.Builder: %w", err)
+		log.Printf("Error - Repo - GetStations - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()         //!!!
-	rows, err := r.Pool.Query(ctx, sql) //!!!
+
+	rows, err := r.Pool.Query(context.Background(), sql, args...)
 	if err != nil {
-		return nil, fmt.Errorf("Repo - GetStationsRepo - r.Pool.Query: %w", err)
+		log.Printf("Error - Repo - GetStations - r.Pool.Query: %s", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	entities := make([]entity.Station, 0, _defaultEntityCap)
-
 	for rows.Next() {
 		s := entity.Station{}
+		err = rows.Scan(
+			&s.ID,
+			&s.SerialNumber,
 
-		err = rows.Scan(&s.ID, &s.SerialNumber, &s.AddressId, &s.Capacity, &s.FreeCapacity, &s.Removed, &s.CreateAt, &s.UpdateAt, &s.DeleteAt)
+			&s.AddressFull.ID,
+			&s.AddressFull.City,
+			&s.AddressFull.Country,
+			&s.AddressFull.Address,
+			&s.AddressFull.Lng,
+			&s.AddressFull.Lat,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("Repo - GetStationsRepo - rows.Scan: %w", err)
+			log.Printf("Error - Repo - GetStations - rows.Scan: %s", err)
+			return nil, err
 		}
 
 		entities = append(entities, s)
 	}
 
-	return entities, nil
+	return &entities, nil
 }
 
-func (r *Repo) GetAllPowerbanksInStationRepo(stationId int) ([]entity.Powerbank, error) {
-	subQ, subArgs, err := squirrel.
-		Select("powerbank_id").
-		From("tbl_station_powerbank").
-		Where(squirrel.Eq{"station_id": stationId}).
-		PlaceholderFormat(squirrel.Question).
-		ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - subQ: %w", err)
-	}
-	sql, args, err := r.Builder.
-		Select("id, serial_number, capacity, used, removed, created_at, updated_at, deleted_at").
-		From("tbl_powerbanks").
-		Where("id in ("+subQ+")", subArgs...).
-		ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Builder: %w", err)
-	}
-	ctx := context.Background()                  //!!!
-	rows, err := r.Pool.Query(ctx, sql, args...) //!!!
-	if err != nil {
-		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Pool.Query: %w", err)
-	}
-	defer rows.Close()
-
-	entities := make([]entity.Powerbank, 0, _defaultEntityCap)
-
-	for rows.Next() {
-		s := entity.Powerbank{}
-
-		err = rows.Scan(&s.ID, &s.SerialNumber, &s.Capacity, &s.Used, &s.Removed, &s.CreateAt, &s.UpdateAt, &s.DeleteAt)
-		if err != nil {
-			return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - rows.Scan: %w", err)
-		}
-
-		entities = append(entities, s)
-	}
-
-	return entities, nil
-}
+// TODO
+//func (r *Repo) GetAllPowerbanksInStation(stationId int) (*[]entity.Powerbank, error) {
+//	subQ, subArgs, err := squirrel.
+//		Select("powerbank").
+//		From("rel__stations__powerbanks").
+//		Where(squirrel.Eq{"station": stationId}).
+//		PlaceholderFormat(squirrel.Question).
+//		ToSql()
+//	if err != nil {
+//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - subQ: %w", err)
+//	}
+//	sql, args, err := r.Builder.
+//		Select("id, serial_number, capacity, used, removed, created_at, updated_at, deleted_at").
+//		From("tbl_powerbanks").
+//		Where("id in ("+subQ+")", subArgs...).
+//		ToSql()
+//	if err != nil {
+//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Builder: %w", err)
+//	}
+//	ctx := context.Background()                  //!!!
+//	rows, err := r.Pool.Query(ctx, sql, args...) //!!!
+//	if err != nil {
+//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Pool.Query: %w", err)
+//	}
+//	defer rows.Close()
+//
+//	entities := make([]entity.Powerbank, 0, _defaultEntityCap)
+//
+//	for rows.Next() {
+//		s := entity.Powerbank{}
+//
+//		err = rows.Scan(&s.ID, &s.SerialNumber, &s.Capacity, &s.Used, &s.Removed, &s.CreateAt, &s.UpdateAt, &s.DeleteAt)
+//		if err != nil {
+//			return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - rows.Scan: %w", err)
+//		}
+//
+//		entities = append(entities, s)
+//	}
+//
+//	return &entities, nil
+//}

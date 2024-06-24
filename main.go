@@ -2,7 +2,11 @@ package main
 
 import (
 	"github.com/Miroshinsv/wcharge_back/config"
+	"github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/Miroshinsv/wcharge_back/internal/app"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"log"
 )
@@ -19,55 +23,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("gelf.NewUDPWriter: %s", err)
 	}
-
+	log.SetPrefix("BACK__")
 	log.SetOutput(gelfWriter)
-	log.Println("BACK. Это информационное сообщение")
-	//log.Printf("Это сообщение с форматированием: %s", "пример")
-	//err = someFunction()
-	//if err != nil {
-	//	log.Printf("Ошибка: %s", err)
-	//}
 
-	//// Создание нового логгера
-	//logger := log.New(gelfWriter, "", 0)
-	//// Пример отправки сообщения об ошибке
-	//err = someFunction()
-	//if err != nil {
-	//	logger.Printf("short_message: %s, full_message: %s, level: %d", "Ошибка произошла", err.Error(), 3)
-	//}
-
-	/**
-	graylogAddr := "localhost:12201" // Укажите адрес вашего сервера Graylog
-	gelfWriter, err := gelf.NewUDPWriter(graylogAddr)
+	docs.SwaggerInfo.Title = "Swagger WeCharge API"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = cfg.Swagger.URL
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	r := gin.New()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	err = r.Run(":8989")
 	if err != nil {
-		log.Fatalf("gelf.NewUDPWriter: %s", err)
-	}
-	logger := logrus.New()
-	logger.SetOutput(gelfWriter)
-	logger.SetFormatter(&logrus.JSONFormatter{})
-
-	logger.WithFields(logrus.Fields{
-		"type": "example",
-	}).Info("Это информационное сообщение")
-
-	logger.WithFields(logrus.Fields{
-		"type": "example",
-	}).Error("Это сообщение об ошибке")
-
-	err = someFunction()
-	if err != nil {
-		logger.WithFields(logrus.Fields{
-			"type": "error",
-		}).Errorf("Ошибка: %s", err)
+		log.Printf("Error - Swagger - Gin - Run: %s", err)
 	}
 
-	*/
-
-	// Run
 	app.Run(cfg)
 }
-
-//func someFunction() error {
-//	// Ваша функция, которая может вернуть ошибку
-//	return errors.New("1234")
-//}

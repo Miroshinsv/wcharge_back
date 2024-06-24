@@ -1,19 +1,18 @@
 package usecase
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
 // GetUserPowerbanks all user's powerbanks
-func (uc *UseCase) GetUserPowerbanks(userId int) ([]entity.Powerbank, error) {
-	powerbanks, err := uc.postgres.GetUserPowerbanksRepo(userId)
-	if err != nil {
-		return nil, fmt.Errorf("UseCase - GetUserPowerbanks - GetUserPowerbanksRepo - " + err.Error())
-	}
-	return powerbanks, nil
+func (uc *UseCase) GetUserPowerbanks(userId int) (*[]entity.Powerbank, error) {
+	//powerbanks, err := uc.postgres.GetUserPowerbanksRepo(userId)
+	//if err != nil {
+	//	return nil, fmt.Errorf("UseCase - GetUserPowerbanks - GetUserPowerbanksRepo - " + err.Error())
+	//}
+	return nil, nil
 }
 
 func (uc *UseCase) TakePowerbank(userId int, stationId int) (*entity.Powerbank, error) {
@@ -29,32 +28,32 @@ func (uc *UseCase) TakePowerbank(userId int, stationId int) (*entity.Powerbank, 
 			return fmt.Errorf("UseCase - TakePowerbank - mqtt.TakePowerbank - %s", err.Error())
 		}
 	*/
-	ctx := context.Background()
+	//ctx := context.Background()
 
-	st, err := uc.postgres.GetStationRepo(stationId)
-	if err != nil {
-		fmt.Printf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
-		return nil, err
-	}
+	//st, err := uc.postgres.GetStationRepo(stationId)
+	//if err != nil {
+	//	fmt.Printf("UseCase - uc.postgres.GetStationRepo - %s", err.Error())
+	//	return nil, err
+	//}
 
-	pb, err := uc.postgres.GetRamdomPowebank()
-	if err != nil {
-		fmt.Printf("UseCase - uc.postgres.GetRamdomPowebank - %s", err.Error())
-		return nil, err
-	}
+	//pb, err := uc.postgres.GetRamdomPowebank()
+	//if err != nil {
+	//	fmt.Printf("UseCase - uc.postgres.GetRamdomPowebank - %s", err.Error())
+	//	return nil, err
+	//}
 
-	_, err = uc.mqtt.PushPowerBank(ctx, &st, pb)
-	if err != nil {
-		fmt.Printf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
-		return nil, err
-	}
+	//_, err = uc.mqtt.PushPowerBank(ctx, &st, pb)
+	//if err != nil {
+	//	fmt.Printf("UseCase - uc.mqtt.PushPowerBank - %s", err.Error())
+	//	return nil, err
+	//}
 
-	err = uc.postgres.TakePowerbank(userId, pb.ID, stationId)
-	if err != nil {
-		fmt.Printf("UseCase -TakePowerbank - TakePowerbank  - %s", err.Error())
-		return nil, err
-	}
-	return pb, nil
+	//err = uc.postgres.TakePowerbank(userId, pb.ID, stationId)
+	//if err != nil {
+	//	fmt.Printf("UseCase -TakePowerbank - TakePowerbank  - %s", err.Error())
+	//	return nil, err
+	//}
+	return nil, nil
 }
 
 func (uc *UseCase) PutPowerbank(userId int, powerbankId int, stationId int, position int) error {

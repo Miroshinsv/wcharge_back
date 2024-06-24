@@ -23,3 +23,6 @@ rabbit:
 
 graylog:
   url: 'localhost:12201'
+
+swagger:
+  url: 'localhost:8888'

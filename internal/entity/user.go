@@ -18,22 +18,20 @@ type UserLogin struct {
 }
 
 type User struct {
-	ID             int    `json:"id"`
-	Username       string `json:"username"`
-	Email          string `json:"email"`
-	Phone          string `json:"phone"`
-	RoleID         int    `json:"role"`
-	RoleName       string `json:"role_name"`
-	RolePrivileges int    `json:"-"`
-	AddressID      int    `json:"address_id"`
-	Password       string `json:"password,omitempty"`
-	PasswordHash   string `json:"-"`
-	PasswordSalt   string `json:"-"`
-	Removed        int    `json:"removed"`
-	//SuspendedAt    pgtype.Timestamptz `json:"suspended_at"`
-	CreateAt pgtype.Timestamptz `json:"create_at"`
-	UpdateAt pgtype.Timestamptz `json:"update_at"`
-	DeleteAt pgtype.Timestamptz `json:"delete_at"`
+	ID           int                 `json:"id"`
+	Username     string              `json:"username"`
+	Email        string              `json:"email"`
+	Phone        string              `json:"phone"`
+	Password     string              `json:"password,omitempty"`
+	PasswordHash string              `json:"password_hash,omitempty"`
+	PasswordSalt string              `json:"password_salt,omitempty"`
+	Removed      bool                `json:"removed,omitempty"`
+	CreateAt     *pgtype.Timestamptz `json:"create_at,omitempty" swaggertype:"string"`
+	UpdateAt     *pgtype.Timestamptz `json:"update_at,omitempty" swaggertype:"string"`
+	DeleteAt     *pgtype.Timestamptz `json:"delete_at,omitempty" swaggertype:"string"`
+
+	Role    Role    `json:"role,omitempty"`
+	Address Address `json:"address,omitempty"`
 }
 
 func (u *User) BeforeCreate() error {
@@ -70,6 +68,7 @@ func generateSalt(secret string) (string, error) {
 	hash.Write(buf)
 	hash.Write(secretB)
 	salt := base64.StdEncoding.EncodeToString(hash.Sum(buf))
+
 	return salt, nil
 }
 
@@ -78,6 +77,7 @@ func (u *User) ComparePassword(password string) bool {
 	bPassword := append([]byte(password), bSalt...)
 	bPasswordHash, _ := base64.StdEncoding.DecodeString(u.PasswordHash)
 	err := bcrypt.CompareHashAndPassword(bPasswordHash, bPassword)
+
 	return err == nil
 
 }
@@ -89,6 +89,8 @@ func encryptString(s string, salt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	pass := base64.StdEncoding.EncodeToString(b)
+
 	return pass, nil
 }

@@ -65,10 +65,12 @@ func Run(cfg *config.Config) {
 		m,
 	)
 
-	test(useCase)
+	//test(useCase) // TODO
 
 	// HTTP Server
 	v1.Start(cfg, useCase)
+
+	test(useCase) // TODO
 }
 
 func test(u *usecase.UseCase) {
@@ -130,13 +132,13 @@ func test(u *usecase.UseCase) {
 		type Powerbank struct {
 			Position     int
 			SerialNumber string
-			Capacity     int
-			Used         int
+			Capacity     float64
+			Used         bool
 		}
 
 		type FullStation struct {
 			SerialNumber string
-			Capacity     int
+			Capacity     float64
 			Powerbanks   []Powerbank
 		}
 
@@ -154,7 +156,7 @@ func test(u *usecase.UseCase) {
 					entity.Station{
 						SerialNumber: msg.SerialNumber,
 						Capacity:     msg.Capacity,
-						AddressId:    1,
+						Address:      1,
 					},
 				)
 

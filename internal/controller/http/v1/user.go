@@ -26,8 +26,8 @@ func (s *server) GetUsersWebAPI(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, http.StatusInternalServerError, fmt.Errorf("GetUsersWebAPI - usecase.User.GetUsers - %w", err))
 		return
 	}
-	for i, _ := range users {
-		users[i].Sanitize()
+	for i, _ := range *users {
+		(*users)[i].Sanitize()
 	}
 	s.respond(w, r, http.StatusOK, users)
 }
@@ -79,10 +79,10 @@ func (s *server) CreateUserWebAPI() http.HandlerFunc {
 
 func (s *server) UpdateUserWebAPI() http.HandlerFunc {
 	type request struct {
-		Username  string `json:"username"`
-		Email     string `json:"email"`
-		Phone     string `json:"phone"`
-		AddressID int    `json:"address_id"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
+		Address  int    `json:"address_id"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -98,10 +98,10 @@ func (s *server) UpdateUserWebAPI() http.HandlerFunc {
 			return
 		}
 		u := &entity.User{
-			Username:  req.Username,
-			Email:     req.Email,
-			Phone:     req.Phone,
-			AddressID: req.AddressID,
+			Username: req.Username,
+			Email:    req.Email,
+			Phone:    req.Phone,
+			//Address: req.Address,
 		}
 		err = s.useCase.UpdateUser(id, *u)
 		if err != nil {

@@ -8,10 +8,10 @@ type Powerbank struct {
 	ID           int                `json:"id"`
 	Position     int                `json:"position"`
 	SerialNumber string             `json:"serial_number"`
-	Capacity     int                `json:"capacity"` // объем заряда
-	Used         int                `json:"used"`     // сколько уже использована банка в часах // up юзается или нет
-	Removed      int                `json:"removed"`
-	CreateAt     pgtype.Timestamptz `json:"create_at"`
-	UpdateAt     pgtype.Timestamptz `json:"update_at"`
-	DeleteAt     pgtype.Timestamptz `json:"delete_at"`
+	Capacity     float64            `json:"capacity"` // объем заряда
+	Used         bool               `json:"used"`     // сколько уже использована банка в часах // up юзается или нет
+	Removed      bool               `json:"removed"`
+	CreateAt     pgtype.Timestamptz `json:"create_at" swaggertype:"string"`
+	UpdateAt     pgtype.Timestamptz `json:"update_at" swaggertype:"string"`
+	DeleteAt     pgtype.Timestamptz `json:"delete_at" swaggertype:"string"`
 }

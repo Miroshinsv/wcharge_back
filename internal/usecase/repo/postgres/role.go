@@ -2,61 +2,67 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	"log"
 )
 
-func (r *Repo) GetRoleRepo(id int) (entity.Role, error) {
-	u := entity.Role{
-		ID: id,
-	}
+func (r *Repo) GetRole(id int) (*entity.Role, error) {
 	sql, args, err := r.Builder.
-		Select("id, role_name, role_privileges").
-		From("tbl_role").
-		Where("tbl_role.id = ?", id).
+		Select("id, name, privileges").
+		From(rolesTableName).
+		Where("role.id = ?", id).
 		ToSql()
 	if err != nil {
-		return u, fmt.Errorf("Repo - GetRoleRepo - r.Builder: %w", err)
-	}
-	ctx := context.Background()
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	if err != nil {
-		return u, fmt.Errorf("Repo - GetRoleRepo - r.Pool.Query: %w", err)
+		log.Printf("Repo - GetRole - r.Builder: %s", err)
+		return nil, err
 	}
 
-	err = row.Scan(&u.ID, &u.RoleName, &u.RolePrivileges)
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	u := entity.Role{}
+	err = row.Scan(
+		&u.ID,
+		&u.Name,
+		&u.Privileges,
+	)
 	if err != nil {
-		return u, fmt.Errorf("Repo - GetRoleRepo - rows.Scan: %w", err)
+		log.Printf("Repo - GetRole - rows.Scan: %s", err)
+		return nil, err
 	}
 
-	return u, nil
+	return &u, nil
 }
 
-func (r *Repo) GetRolesRepo() ([]entity.Role, error) {
+func (r *Repo) GetRoles() (*[]entity.Role, error) {
 	sql, args, err := r.Builder.
-		Select("id, role_name, role_privileges").
-		From("postgres.public.tbl_role").
+		Select("id, name, privileges").
+		From("postgres.public.role").
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("Repo - GetRolesRepo - r.Builder: %w", err)
+		log.Printf("Repo - GetRolesRepo - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()
-	rows, err := r.Pool.Query(ctx, sql, args...)
+
+	rows, err := r.Pool.Query(context.Background(), sql, args...)
 	if err != nil {
-		return nil, fmt.Errorf("Repo - GetRolesRepo - r.Pool.Query: %w", err)
+		log.Printf("Repo - GetRolesRepo - r.Pool.Query: %s", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	roles := make([]entity.Role, 0, _defaultEntityCap)
-
 	for rows.Next() {
 		role := entity.Role{}
-		err = rows.Scan(&role.ID, &role.RoleName, &role.RolePrivileges)
+		err = rows.Scan(
+			&role.ID,
+			&role.Name,
+			&role.Privileges,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("Repo - GetRolesRepo - rows.Scan: %w", err)
+			log.Printf("Repo - GetRolesRepo - rows.Scan: %s", err)
+			return nil, err
 		}
 		roles = append(roles, role)
 	}
 
-	return roles, nil
+	return &roles, nil
 }

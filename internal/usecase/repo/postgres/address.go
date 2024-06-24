@@ -2,34 +2,41 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	"log"
 )
 
-var tableAddress = "tbl_addresses"
-
-func (r *Repo) CreateAddressRepo(addr entity.Address) error {
+func (r *Repo) CreateAddress(addr entity.Address) (*entity.Address, error) {
 	sql, args, err := r.Builder.
-		Insert(tableAddress).
+		Insert(addressTableName).
 		Columns("country, city, address, lat, lng").
 		Values(addr.Country, addr.City, addr.Address, addr.Lat, addr.Lng).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - CreateAddressRepo - r.Builder: %w", err)
+		log.Printf("PostgresRepo - CreateAddressRepo - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	err = row.Scan(
+		&addr.ID,
+		&addr.Address,
+		&addr.City,
+		&addr.Lat,
+		&addr.Lng,
+		&addr.Country,
+	)
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - CreateAddressRepo - r.Pool.Exec: %w", err)
+		log.Printf("PostgresRepo - CreateAddressRepo - r.Pool.Exec: %s", err)
+		return nil, err
 	}
 
-	return nil
+	return &addr, nil
 }
 
-func (r *Repo) UpdateAddressRepo(id int, addr entity.Address) error {
+func (r *Repo) UpdateAddress(addr entity.Address, id int) (*entity.Address, error) {
 	sql, args, err := r.Builder.
-		Update(tableAddress).
+		Update(addressTableName).
 		Set("country", addr.Country).
 		Set("city", addr.City).
 		Set("address", addr.Address).
@@ -38,81 +45,98 @@ func (r *Repo) UpdateAddressRepo(id int, addr entity.Address) error {
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - UpdateAddressRepo - r.Builder: %w", err)
+		log.Printf("PostgresRepo - UpdateAddressRepo - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	err = row.Scan(
+		&addr.ID,
+		&addr.Address,
+		&addr.City,
+		&addr.Lat,
+		&addr.Lng,
+		&addr.Country,
+	)
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - UpdateAddressRepo - r.Pool.Query: %w", err)
+		log.Printf("PostgresRepo - UpdateAddressRepo - r.Pool.Query: %s", err)
+		return nil, err
 	}
-	return nil
+	return &addr, nil
 }
 
-func (r *Repo) DeleteAddressRepo(id int) error {
+func (r *Repo) DeleteAddress(id int) error {
 	sql, args, err := r.Builder.
-		Delete(tableAddress).
+		Delete(addressTableName).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - DeleteAddressRepo - r.Builder: %w", err)
+		log.Printf("PostgresRepo - DeleteAddressRepo - r.Builder: %s", err)
+		return err
 	}
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
 	if err != nil {
-		return fmt.Errorf("PostgresRepo - DeleteAddressRepo - r.Pool.Query: %w", err)
+		log.Printf("PostgresRepo - DeleteAddressRepo - r.Pool.Query: %s", err)
+		return err
 	}
 	return nil
 }
 
-func (r *Repo) GetAddressRepo(id int) (entity.Address, error) {
-	u := entity.Address{}
+func (r *Repo) GetAddress(id int) (*entity.Address, error) {
 	sql, args, err := r.Builder.
 		Select("id, country, city, address, lat, lng").
-		From(tableAddress).
+		From(addressTableName).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return u, fmt.Errorf("PostgresRepo - GetAddressRepo - r.Builder: %w", err)
-	}
-	ctx := context.Background()
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	if err != nil {
-		return u, fmt.Errorf("PostgresRepo - GetAddressRepo - r.Pool.Query: %w", err)
+		log.Printf("PostgresRepo - GetAddressRepo - r.Builder: %s", err)
+		return nil, err
 	}
 
-	err = row.Scan(&u.ID, &u.Country, &u.City, &u.Address, &u.Lat, &u.Lng)
+	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	u := entity.Address{}
+	err = row.Scan(
+		&u.ID,
+		&u.Country,
+		&u.City,
+		&u.Address,
+		&u.Lat,
+		&u.Lng,
+	)
 	if err != nil {
-		return entity.Address{}, fmt.Errorf("AddressRepo - GetAddresss - rows.Scan: %w", err)
+		log.Printf("AddressRepo - GetAddresss - rows.Scan: %ы", err)
+		return nil, err
 	}
 
-	return u, nil
+	return &u, nil
 }
 
-func (r *Repo) GetAddressesRepo() ([]entity.Address, error) {
+func (r *Repo) GetAddresses() (*[]entity.Address, error) {
 	sql, _, err := r.Builder.
 		Select("id, country, city, address, lat, lng").
-		From(tableAddress).
+		From(addressTableName).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("GetAddresses - r.Builder: %w", err)
+		log.Printf("GetAddresses - r.Builder: %s", err)
+		return nil, err
 	}
-	ctx := context.Background()         //!!!
-	rows, err := r.Pool.Query(ctx, sql) //!!!
+
+	rows, err := r.Pool.Query(context.Background(), sql)
 	if err != nil {
-		return nil, fmt.Errorf("GetAddresses - r.Pool.Query: %w", err)
+		log.Printf("GetAddresses - r.Pool.Query: %s", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	entities := make([]entity.Address, 0, _defaultEntityCap)
-
 	for rows.Next() {
 		u := entity.Address{}
 		err = rows.Scan(&u.ID, &u.Country, &u.City, &u.Address, &u.Lat, &u.Lng)
 		if err != nil {
-			return nil, fmt.Errorf("AddressRepo - GetAddresss - rows.Scan: %w", err)
+			log.Printf("AddressRepo - GetAddresss - rows.Scan: %s", err)
+			return nil, err
 		}
 		entities = append(entities, u)
 	}
 
-	return entities, nil
+	return &entities, nil
 }

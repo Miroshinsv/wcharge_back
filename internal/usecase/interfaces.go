@@ -28,13 +28,14 @@ type (
 		GetUserByName(userName string) (entity.User, error)
 	}
 
+	// TODO
 	UserRepo interface {
-		CreateUserRepo(entity.User) error
-		UpdateUserRepo(int, entity.User) error
-		DeleteUserRepo(int) error
-		GetUserRepo(int) (entity.User, error)
-		GetUsersRepo() ([]entity.User, error)
-		GetUserByNameRepo(userName string) (entity.User, error)
+		GetUserByNameRepo(userName string) (*entity.User, error)
+		CreateUserRepo(u entity.User) error
+		UpdateUserRepo(u entity.User, id int) error
+		DeleteUserRepo(id int) error
+		GetUserRepo(id int) (*entity.User, error)
+		GetUsersRepo() (*[]entity.User, error)
 	}
 )
 
@@ -49,12 +50,12 @@ type (
 	}
 
 	StationRepo interface {
-		CreateStationRepo(entity.Station) (*entity.Station, error)
-		UpdateStationRepo(int, entity.Station) error
-		DeleteStationRepo(int) error
-		GetStationRepo(int) (entity.Station, error)
-		GetStationsRepo() ([]entity.Station, error)
-		GetAllPowerbanksInStationRepo(int) ([]entity.Powerbank, error)
+		CreateStation(s entity.Station) (*entity.Station, error)
+		UpdateStation(s entity.Station, id int) (*entity.Station, error)
+		DeleteStationRepo(id int) error
+		GetStation(id int) (*entity.Station, error)
+		GetStations() (*[]entity.Station, error)
+		//GetAllPowerbanksInStation(stationId int) (*[]entity.Powerbank, error) // TODO move to powerbanks
 	}
 )
 
@@ -68,12 +69,12 @@ type (
 	}
 
 	PowerbankRepo interface {
-		CreatePowerbankRepo(entity.Powerbank) (*entity.Powerbank, error)
-		UpdatePowerbankRepo(int, entity.Powerbank) error
-		DeletePowerbankRepo(int) error
-		GetPowerbankRepo(int) (entity.Powerbank, error)
-		GetPowerbanksRepo() ([]entity.Powerbank, error)
-		GetRamdomPowebank() (*entity.Powerbank, error)
+		CreatePowerbank(p entity.Powerbank) (*entity.Powerbank, error)
+		UpdatePowerbank(p entity.Powerbank, id int) (*entity.Powerbank, error)
+		DeletePowerbank(id int) error
+		GetRamdomPowerbank() (*entity.Powerbank, error)
+		GetPowerbank(id int) (*entity.Powerbank, error)
+		GetPowerbanks() (*[]entity.Powerbank, error)
 	}
 )
 
@@ -87,11 +88,11 @@ type (
 	}
 
 	AddressRepo interface {
-		CreateAddressRepo(entity.Address) error
-		UpdateAddressRepo(int, entity.Address) error
-		DeleteAddressRepo(int) error
-		GetAddressRepo(int) (entity.Address, error)
-		GetAddressesRepo() ([]entity.Address, error)
+		CreateAddress(addr entity.Address) (*entity.Address, error)
+		UpdateAddress(addr entity.Address, id int) (*entity.Address, error)
+		DeleteAddress(id int) error
+		GetAddress(id int) (*entity.Address, error)
+		GetAddresses() (*[]entity.Address, error)
 	}
 )
 
@@ -102,8 +103,8 @@ type (
 	}
 
 	RoleRepo interface {
-		GetRoleRepo(int) (entity.Role, error)
-		GetRolesRepo() ([]entity.Role, error)
+		GetRole(id int) (*entity.Role, error)
+		GetRoles() (*[]entity.Role, error)
 	}
 )
 
@@ -116,8 +117,9 @@ type (
 	}
 
 	UserActionRepo interface {
-		GetUserPowerbanksRepo(userId int) ([]entity.Powerbank, error) // all user's powerbanks
-		TakePowerbank(userId int, powerbankId int, stationId int) error
+		GetUserPowerbanksRepo(userId int) (*[]entity.Powerbank, error)
+		InsertStationPowerbank(powerbankId int, stationId int, position int) error
+		TakePowerbank(userId int, powerbankId int) error
 		PutPowerbankRepo(userId int, powerbankId int, stationId int, position int) error
 		AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error
 	}

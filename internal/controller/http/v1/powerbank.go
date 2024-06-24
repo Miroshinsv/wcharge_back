@@ -47,9 +47,9 @@ func (s *server) GetPowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) CreatePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 	type request struct {
-		SerialNumber string `json:"serial_number"`
-		Capacity     int    `json:"capacity"` // объем заряда
-		Used         int    `json:"used"`     // сколько уже использована банка в часах
+		SerialNumber string  `json:"serial_number"`
+		Capacity     float64 `json:"capacity"` // объем заряда
+		Used         bool    `json:"used"`     // сколько уже использована банка в часах
 	}
 
 	req := &request{}
@@ -74,7 +74,7 @@ func (s *server) CreatePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) UpdatePowerbankWebAPI(w http.ResponseWriter, r *http.Request) {
 	type request struct {
-		Used int `json:"used"` // сколько уже использована банка в часах
+		Used bool `json:"used"` // сколько уже использована банка в часах
 	}
 
 	vars := mux.Vars(r)

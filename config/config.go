@@ -14,6 +14,7 @@ type (
 		GRPC    `yaml:"grpc"`
 		Rabbit  `yaml:"rabbit"`
 		Graylog `yaml:"graylog"`
+		Swagger `yaml:"swagger"`
 	}
 
 	// App -.
@@ -45,6 +46,10 @@ type (
 
 	Graylog struct {
 		URL string `env-required:"true" yaml:"url" env:"GRAYLOG_URL"`
+	}
+
+	Swagger struct {
+		URL string `env-required:"true" yaml:"url" env:"SWAGGER_URL"`
 	}
 
 	// Rabbit -.
