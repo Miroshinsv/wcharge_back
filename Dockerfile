@@ -11,6 +11,8 @@ RUN go mod download && go mod verify
 RUN go build -tags migrate -o /opt/wcharge_back_migrate
 RUN go build -o /opt/wcharge_back
 
+RUN swag init -g internal/controller/http/v1/router.go
+
 
 FROM alpine:3.18 AS production
 RUN apk update && \
