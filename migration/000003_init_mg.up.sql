@@ -2,7 +2,7 @@
 SET TIME ZONE 'Europe/Moscow';
 
 -- Таблица адресов
-CREATE TABLE tbl_addresses (
+CREATE TABLE IF NOT EXISTS  tbl_addresses (
     id serial PRIMARY KEY,
     country VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
@@ -16,7 +16,7 @@ insert into tbl_addresses (country, city, address, lat, lng) VALUES ('Monaco', '
 insert into tbl_addresses (country, city, address, lat, lng) VALUES ('Germany', 'Berlin', 'Address Berlin', 545.1234, 12345.12351);
 
 -- таблца ролей
-CREATE TABLE tbl_role (
+CREATE TABLE IF NOT EXISTS  tbl_role (
     id serial PRIMARY KEY,
     role_name VARCHAR(255) NOT NULL UNIQUE,
     role_privileges INT NOT NULL
@@ -27,7 +27,7 @@ INSERT INTO tbl_role(role_name, role_privileges) VALUES ('employee', 1);
 INSERT INTO tbl_role(role_name, role_privileges) VALUES ('user', 2);
 
 -- Таблица пользователей
-CREATE TABLE tbl_users (
+CREATE TABLE IF NOT EXISTS  tbl_users (
     id serial PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -53,7 +53,7 @@ insert into tbl_users (username, email, role_id, password_hash, password_salt)
 values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3SnhYYXpKbnVIV0tpV1liRnEzSnV2ZzZ2MDV6NEd5', 'kdFEO7zJJy94rKcAQhLAcOYxZ5lIb9FUXHJ2A2zEpDkGR+4hHrNOPgWHUvcn+SZUODeEhQ==');
 
 -- Таблица заказов
---CREATE TABLE orders (
+--CREATE TABLE IF NOT EXISTS  orders (
 --    id INT PRIMARY KEY AUTO_INCREMENT,
 --    user_id INT NOT NULL,
 --    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -63,7 +63,7 @@ values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3Snh
 --);
 
 -- Таблица powerbanks
-CREATE TABLE tbl_powerbanks (
+CREATE TABLE IF NOT EXISTS  tbl_powerbanks (
     id serial PRIMARY KEY,
     serial_number VARCHAR(255) NOT NULL,
     capacity INT NULL NULL,
@@ -84,7 +84,7 @@ CREATE TABLE tbl_powerbanks (
 -- insert into tbl_powerbanks (serial_number, capacity) VALUES ('7', 5400);
 -- insert into tbl_powerbanks (serial_number, capacity) VALUES ('8', 5400);
 
-CREATE TABLE tbl_stations (
+CREATE TABLE IF NOT EXISTS  tbl_stations (
     id serial PRIMARY KEY,
     serial_number VARCHAR(255) NOT NULL,
     address_id INT DEFAULT 1,
@@ -104,7 +104,7 @@ CREATE TABLE tbl_stations (
 -- insert into tbl_stations (serial_number, address_id, capacity, free_capacity)
 --     VALUES ('st1', 2, 10, 10);
 
-CREATE TABLE tbl_station_powerbank (
+CREATE TABLE IF NOT EXISTS  tbl_station_powerbank (
     id serial PRIMARY KEY,
     station_id INT NOT NULL,
     powerbank_id INT NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE tbl_station_powerbank (
 -- insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 7, 7);
 -- insert into tbl_station_powerbank (station_id, powerbank_id, position) VALUES (1, 8, 8);
 
-CREATE TABLE tbl_user_powerbank (
+CREATE TABLE IF NOT EXISTS  tbl_user_powerbank (
     id serial PRIMARY KEY,
     user_id INT NOT NULL,
     powerbank_id INT NOT NULL,

@@ -2,7 +2,7 @@
 SET TIME ZONE 'Europe/Moscow';
 
 -- Таблица адресов
-CREATE TABLE addresses
+CREATE TABLE IF NOT EXISTS  addresses
 (
     id      serial PRIMARY KEY,
     country text             NOT NULL,
@@ -20,7 +20,7 @@ insert into addresses (country, city, address, lat, lng)
 VALUES ('Georgia', 'Tbilisi', '99 Akaki Beliashvili St', 41.775668, 44.7678351);
 
 -- таблца ролей
-CREATE TABLE roles
+CREATE TABLE IF NOT EXISTS  roles
 (
     id         serial PRIMARY KEY,
     name       text    NOT NULL UNIQUE,
@@ -35,7 +35,7 @@ INSERT into roles(name, privileges)
 VALUES ('user', 2);
 
 -- Таблица пользователей
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS  users
 (
     id            serial PRIMARY KEY,
     username      text NOT NULL UNIQUE,
@@ -65,7 +65,7 @@ values ('user', 'user@mail.com', 3, 'JDJhJDA0JFZmWFl3Y29PTWVjRmc0clpYZjhjRHV3Snh
         'kdFEO7zJJy94rKcAQhLAcOYxZ5lIb9FUXHJ2A2zEpDkGR+4hHrNOPgWHUvcn+SZUODeEhQ==');
 
 -- Таблица powerbanks
-CREATE TABLE powerbanks
+CREATE TABLE IF NOT EXISTS  powerbanks
 (
     id            serial PRIMARY KEY,
     serial_number text             NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE powerbanks
     deleted_at    TIMESTAMPTZ DEFAULT NULL
 );
 
-CREATE TABLE stations
+CREATE TABLE IF NOT EXISTS  stations
 (
     id            serial PRIMARY KEY,
     serial_number text             NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE stations
     FOREIGN KEY (address) REFERENCES addresses (id) ON DELETE SET DEFAULT
 );
 
-CREATE TABLE rel__stations__powerbanks
+CREATE TABLE IF NOT EXISTS  rel__stations__powerbanks
 (
     station    integer NOT NULL,
     powerbank  integer NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE rel__stations__powerbanks
     FOREIGN KEY (powerbank) REFERENCES powerbanks (id) ON DELETE CASCADE
 );
 
-CREATE TABLE rel__users__powerbanks
+CREATE TABLE IF NOT EXISTS  rel__users__powerbanks
 (
     "user"     integer NOT NULL,
     powerbank  integer NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE rel__users__powerbanks
     FOREIGN KEY (powerbank) REFERENCES powerbanks (id) ON DELETE CASCADE
 );
 
-create table history_powerbank
+CREATE TABLE IF NOT EXISTS  history_powerbank
 (
     powerbank      integer not null,
     take_station   integer not null,
@@ -123,7 +123,7 @@ create table history_powerbank
 );
 
 -- TODO
--- create table history_stations ();
+-- CREATE TABLE IF NOT EXISTS  history_stations ();
 
 -- Триггеры на update
 CREATE OR REPLACE FUNCTION trigger_set_timestamp_update()
