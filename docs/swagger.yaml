@@ -115,6 +115,37 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Create station
+  /stations/{id}:
+    delete:
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete station
+    get:
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Station'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get info about station
     put:
       parameters:
       - description: Station ID
@@ -142,8 +173,8 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Create station
-  /stations/{id}:
+      summary: Update station
+  /stations/{id}/powerbanks:
     get:
       parameters:
       - description: Station ID
@@ -155,9 +186,72 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.Station'
+            items:
+              $ref: '#/definitions/entity.Powerbank'
+            type: array
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Get info about station
+      summary: Get powerbanks in station
+    post:
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Take random powerbank from station
+  /stations/{stationId}/powerbanks/{powerbankId}:
+    post:
+      parameters:
+      - description: Station ID
+        in: path
+        name: stationId
+        required: true
+        type: integer
+      - description: Powerbank ID
+        in: path
+        name: powerbankId
+        required: true
+        type: integer
+      - description: Powerbank's position in station
+        in: body
+        name: Position
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Add powerbank to station
+    put:
+      parameters:
+      - description: Station ID
+        in: path
+        name: stationId
+        required: true
+        type: integer
+      - description: Powerbank ID
+        in: path
+        name: powerbankId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Return powerbank to station
 swagger: "2.0"

@@ -116,13 +116,13 @@ func (s *server) CreateStation(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateStation godoc
-// @Summary 	 Create station
+// @Summary 	 Update station
 // @Param        id   			path      int  		true  "Station ID"
 // @Param        Address   		body   	  int 		true  "Address ID"
 // @Param        FreeCapacity   body      float64	true  "Free capacity on station"
 // @Success      200  {object}  entity.Station
 // @Failure      500  {object}  error
-// @Router       /stations [put]
+// @Router       /stations/{id} [put]
 func (s *server) UpdateStation(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Address      int     `json:"address"`
@@ -157,6 +157,12 @@ func (s *server) UpdateStation(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, nil)
 }
 
+// DeleteStation godoc
+// @Summary 	 Delete station
+// @Param        id   			path      int  		true  "Station ID"
+// @Success      200  {object}  nil
+// @Failure      500  {object}  error
+// @Router       /stations/{id} [delete]
 func (s *server) DeleteStation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -176,6 +182,12 @@ func (s *server) DeleteStation(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, nil)
 }
 
+// GetAllPowerbanksInStation godoc
+// @Summary 	 Get powerbanks in station
+// @Param        id   			path      int  		true  "Station ID"
+// @Success      200  {array}  entity.Powerbank
+// @Failure      500  {object}  error
+// @Router       /stations/{id}/powerbanks [get]
 func (s *server) GetAllPowerbanksInStation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -195,6 +207,12 @@ func (s *server) GetAllPowerbanksInStation(w http.ResponseWriter, r *http.Reques
 	s.respond(w, r, http.StatusOK, powerbanks)
 }
 
+// TakePowerbank godoc
+// @Summary 	 Take random powerbank from station
+// @Param        id   			path      int  		true  "Station ID"
+// @Success      200  {integer} int
+// @Failure      500  {object}  error
+// @Router       /stations/{id}/powerbanks [post]
 func (s *server) TakePowerbank(w http.ResponseWriter, r *http.Request) {
 
 	type request struct {
@@ -235,7 +253,14 @@ func (s *server) TakePowerbank(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, data)
 }
 
-func (s *server) PutPowerbank(w http.ResponseWriter, r *http.Request) {
+// PutPowerbank godoc
+// @Summary 	 Return powerbank to station
+// @Param        stationId   			path      int  		true  "Station ID"
+// @Param        powerbankId   			path      int  		true  "Powerbank ID"
+// @Success      200  {object} 	nil
+// @Failure      500  {object}  error
+// @Router       /stations/{stationId}/powerbanks/{powerbankId} [put]
+func (s *server) PutPowerbank(w http.ResponseWriter, r *http.Request) { // TODO ???
 	type request struct {
 		UserId      int `json:"userId"`
 		PowerbankId int `json:"powerbankId"`
@@ -274,7 +299,15 @@ func (s *server) PutPowerbank(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, nil)
 }
 
-func (s *server) AddPowerbankToStation(w http.ResponseWriter, r *http.Request) {
+// AddPowerbankToStation godoc
+// @Summary 	 Add powerbank to station
+// @Param        stationId   			path      int  		true  "Station ID"
+// @Param        powerbankId   			path      int  		true  "Powerbank ID"
+// @Param        Position   			body      int		true  "Powerbank's position in station"
+// @Success      200  {object} 	nil
+// @Failure      500  {object}  error
+// @Router       /stations/{stationId}/powerbanks/{powerbankId} [post]
+func (s *server) AddPowerbankToStation(w http.ResponseWriter, r *http.Request) { // TODO ???
 
 	type request struct {
 		PowerbankId int `json:"powerbankId"`

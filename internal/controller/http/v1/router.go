@@ -59,7 +59,7 @@ func (s *server) NewHttpRouter() {
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = cfg.Swagger.URL
 	docs.SwaggerInfo.BasePath = "/api/v1"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Schemes = []string{"https"}
 	s.router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 }
 

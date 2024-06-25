@@ -23,48 +23,6 @@
                     }
                 }
             },
-            "put": {
-                "summary": "Create station",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Station ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Address ID",
-                        "name": "Address",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "description": "Free capacity on station",
-                        "name": "FreeCapacity",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "number"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Station"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            },
             "post": {
                 "summary": "Create station",
                 "parameters": [
@@ -137,6 +95,189 @@
                         "schema": {
                             "$ref": "#/definitions/entity.Station"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Address ID",
+                        "name": "Address",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Free capacity on station",
+                        "name": "FreeCapacity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Station"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/stations/{id}/powerbanks": {
+            "get": {
+                "summary": "Get powerbanks in station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Powerbank"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "post": {
+                "summary": "Take random powerbank from station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/stations/{stationId}/powerbanks/{powerbankId}": {
+            "put": {
+                "summary": "Return powerbank to station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Powerbank ID",
+                        "name": "powerbankId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "post": {
+                "summary": "Add powerbank to station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Station ID",
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Powerbank ID",
+                        "name": "powerbankId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Powerbank's position in station",
+                        "name": "Position",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "500": {
                         "description": "Internal Server Error",
