@@ -4,140 +4,158 @@ import (
 	"context"
 	"github.com/Masterminds/squirrel"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
+	"log"
 )
 
 // TODO
 
+// GetUsersPowerbanks All user's powerbanks
 // делать проверку на ПОВТОРНУЮ ЗАПИСЬ и ПОВТОРНОЕ УДАЛЕНИЕ
-// GetUserPowerbanksRepo All user's powerbanks
-func (r *Repo) GetUserPowerbanksRepo(userId int) (*[]entity.Powerbank, error) {
-	//sql, args, err := r.Builder.
-	//	Select("powerbank_id").
-	//	From("tbl_user_powerbank").
-	//	Where(squirrel.Eq{"user_id": userId}).
-	//	ToSql()
-	//if err != nil {
-	//	return nil, fmt.Errorf("Repo - GetUserPowerbanksRepo - r.Builder: %w", err)
-	//}
-	//ctx := context.Background()
-	//rows, err := r.Pool.Query(ctx, sql, args)
-	//if err != nil {
-	//	return nil, fmt.Errorf("Repo - GetUserPowerbanksRepo - r.Pool.Query: %w", err)
-	//}
-	//defer rows.Close()
-	//
-	//var powerbanksId []int
-	//
-	//for rows.Next() {
-	//	var i int
-	//	err = rows.Scan(&i)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("Repo - GetUserPowerbanksRepo - rows.Scan: %w", err)
-	//	}
-	//	powerbanksId = append(powerbanksId, i)
-	//}
+func (r *Repo) GetUsersPowerbanks(userId int) (*[]entity.Powerbank, error) {
+	sql, args, err := r.Builder.
+		Select("pt.id, pt.serial_number, rsp.position").
+		From(usersPowerbanksTableName + " rup").
+		Join(powerbanksTableName + " pt on pt.id = rup.powerbank").
+		Join(stationsPowerbanksTableName + " rsp on rsp.powerbank = pt.id").
+		Where(squirrel.And{
+			squirrel.Eq{"rup.user": userId},
+			squirrel.Eq{"pt.used": true},
+		}).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - Repo - GetUserPowerbanks - r.Builder: %s", err)
+		return nil, err
+	}
+
+	rows, err := r.Pool.Query(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - Repo - GetUserPowerbanks - r.Pool.Query: %s", err)
+		return nil, err
+	}
+	defer rows.Close()
 
 	var entities []entity.Powerbank
-	//for _, powerbankId := range powerbanksId {
-	//	pw, _ := r.GetPowerbank(powerbankId)
-	//	entities = append(entities, *pw)
-	//}
+	for rows.Next() {
+		powerbank := entity.Powerbank{}
+		err = rows.Scan(
+			&powerbank.ID,
+			&powerbank.SerialNumber,
+			&powerbank.Used,
+			&powerbank.Position,
+		)
+		if err != nil {
+			log.Printf("Error - Repo - GetUserPowerbanks - rows.Scan: %s", err)
+			return nil, err
+		}
+
+		entities = append(entities, powerbank)
+	}
 
 	return &entities, nil
 }
 
+// InsertStationPowerbank TODO return value
 func (r *Repo) InsertStationPowerbank(powerbankId int, stationId int, position int) error {
-	//sql, args, err := r.Builder.
-	//	Insert("public.tbl_station_powerbank").
-	//	Columns("station_id, powerbank_id, position").
-	//	Values(stationId, powerbankId, position).
-	//	ToSql()
-	//if err != nil {
-	//	return fmt.Errorf("InsertStationPowerbank - r.Builder: %w", err)
-	//}
-	//ctx := context.Background()
-	//_, err = r.Pool.Exec(ctx, sql, args...)
-	//if err != nil {
-	//	return fmt.Errorf("InsertStationPowerbank - r.Pool.Exec: %w", err)
-	//}
-
-	return nil
-}
-
-func (r *Repo) deleteStationPowerbank(powerbankId int, stationId int) error {
-	//sql, args, err := r.Builder.
-	//	Delete("public.tbl_station_powerbank").
-	//	Where(squirrel.And{
-	//		squirrel.Eq{"powerbank_id": powerbankId},
-	//		squirrel.Eq{"station_id": stationID},
-	//	}).
-	//	ToSql()
-	//if err != nil {
-	//	return fmt.Errorf("deleteStationPowerbank - r.Builder: %w", err)
-	//}
-	//ctx := context.Background()
-	//_, err = r.Pool.Exec(ctx, sql, args...)
-	//if err != nil {
-	//	return fmt.Errorf("deleteStationPowerbank - r.Pool.Exec: %w", err)
-	//}
-
-	return nil
-}
-
-func (r *Repo) insertUserPowerbank(userId int, powerbankId int, stationId int) error {
-	//sql, args, err := r.Builder.
-	//	Insert("public.tbl_user_powerbank").
-	//	Columns("user_id, powerbank_id").
-	//	Values(userId, powerbankId, stationID).
-	//	ToSql()
-	//if err != nil {
-	//	return fmt.Errorf("insertUserPowerbank - r.Builder: %w", err)
-	//}
-	//ctx := context.Background()
-	//_, err = r.Pool.Exec(ctx, sql, args...)
-	//fmt.Print(args...)
-	//if err != nil {
-	//	return fmt.Errorf("insertUserPowerbank - r.Pool.Exec: %w", err)
-	//}
-
-	return nil
-}
-
-func (r *Repo) deleteUserPowerbank(userId int, powerbankId int) error {
-	//sql, args, err := r.Builder.
-	//	Delete("public.tbl_user_powerbank").
-	//	Where(squirrel.And{
-	//		squirrel.Eq{"user_id": userId},
-	//		squirrel.Eq{"powerbank_id": powerbankId},
-	//	}).
-	//	ToSql()
-	//if err != nil {
-	//	return fmt.Errorf("deleteUserPowerbank - r.Builder: %w", err)
-	//}
-	//ctx := context.Background()
-	//_, err = r.Pool.Exec(ctx, sql, args...)
-	//if err != nil {
-	//	return fmt.Errorf("deleteUserPowerbank - r.Pool.Exec: %w", err)
-	//}
-
-	return nil
-}
-
-// TakePowerbankRepo take user powerbank
-func (r *Repo) TakePowerbank(userId int, powerbankId int) error {
-
 	sql, args, err := r.Builder.
-		Insert("rel__users__powerbanks").
+		Insert(stationsPowerbanksTableName).
+		Columns("station, powerbank, position").
+		Values(stationId, powerbankId, position).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - InsertStationPowerbank - r.Builder: %s", err)
+		return err
+	}
+
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - InsertStationPowerbank - r.Pool.Exec: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) DeleteStationPowerbank(powerbankId int, stationId int) error {
+	sql, args, err := r.Builder.
+		Delete(stationsPowerbanksTableName).
+		Where(squirrel.And{
+			squirrel.Eq{"powerbank": powerbankId},
+			squirrel.Eq{"station": stationId},
+		}).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - DeleteStationPowerbank - r.Builder: %s", err)
+		return err
+	}
+
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - DeleteStationPowerbank - r.Pool.Exec: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+// InsertUserPowerbank TODO return value
+func (r *Repo) InsertUserPowerbank(userId int, powerbankId int, stationId int) error {
+	sql, args, err := r.Builder.
+		Insert(usersPowerbanksTableName).
+		Columns("user, powerbank").
+		Values(userId, powerbankId, stationId).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - InsertUserPowerbank - r.Builder: %s", err)
+		return err
+	}
+
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - InsertUserPowerbank - r.Pool.Exec: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) DeleteUserPowerbank(userId int, powerbankId int) error {
+	sql, args, err := r.Builder.
+		Delete(usersPowerbanksTableName).
+		Where(squirrel.And{
+			squirrel.Eq{"user": userId},
+			squirrel.Eq{"powerbank": powerbankId},
+		}).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - DeleteUserPowerbank - r.Builder: %s", err)
+		return err
+	}
+
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - DeleteUserPowerbank - r.Pool.Exec: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+// TakePowerbank take user powerbank
+// TODO return value
+func (r *Repo) TakePowerbank(userId int, powerbankId int) error {
+	sql, args, err := r.Builder.
+		Insert(usersPowerbanksTableName).
 		Columns("user, powerbank").
 		Values(userId, powerbankId).
 		ToSql()
 	if err != nil {
+		log.Printf("Error - TakePowerbank - r.Builder - 1: %s", err)
 		return err
 	}
 
-	ctx := context.Background()
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
 	if err != nil {
+		log.Printf("Error - TakePowerbank - r.Pool.Exec - 1: %s", err)
 		return err
 	}
 
@@ -147,33 +165,43 @@ func (r *Repo) TakePowerbank(userId int, powerbankId int) error {
 		Where(squirrel.Eq{"id": powerbankId}).
 		ToSql()
 	if err != nil {
+		log.Printf("Error - TakePowerbank - r.Builder - 2: %s", err)
 		return err
 	}
 
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	_, err = r.Pool.Exec(context.Background(), sql, args...)
 	if err != nil {
+		log.Printf("Error - TakePowerbank - r.Pool.Exec - 2: %s", err)
 		return err
 	}
 
 	return nil
 }
 
-func (r *Repo) PutPowerbankRepo(userId int, powerbankId int, stationId int, position int) error {
-	//err := r.deleteUserPowerbank(userId, powerbankId)
-	//if err != nil {
-	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
-	//}
-	//err = r.InsertStationPowerbank(powerbankId, stationId, position)
-	//if err != nil {
-	//	return fmt.Errorf("BackTakePowerbankRepo - %w", err)
-	//}
+// PutPowerbank TODO return value
+func (r *Repo) PutPowerbank(userId int, powerbankId int, stationId int, position int) error {
+	err := r.DeleteUserPowerbank(userId, powerbankId)
+	if err != nil {
+		log.Printf("Error - PutPowerbank(BackTakedPowerbank): %s", err)
+		return err
+	}
+
+	err = r.InsertStationPowerbank(powerbankId, stationId, position)
+	if err != nil {
+		log.Printf("Error - PutPowerbank(BackTakedPowerbank): %s", err)
+		return err
+	}
+
 	return nil
 }
 
-func (r *Repo) AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error {
-	//err := r.InsertStationPowerbank(powerbankId, stationId, position)
-	//if err != nil {
-	//	return fmt.Errorf("AddPowerbankToStationRepo - %w", err)
-	//}
+// AddPowerbankToStation TODO return value
+func (r *Repo) AddPowerbankToStation(powerbankId int, stationId int, position int) error {
+	err := r.InsertStationPowerbank(powerbankId, stationId, position)
+	if err != nil {
+		log.Printf("Error - AddPowerbankToStation - %s", err)
+		return err
+	}
+
 	return nil
 }

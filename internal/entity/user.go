@@ -26,12 +26,14 @@ type User struct {
 	PasswordHash string              `json:"password_hash,omitempty"`
 	PasswordSalt string              `json:"password_salt,omitempty"`
 	Removed      bool                `json:"removed,omitempty"`
+	Role         int                 `json:"role,omitempty"`
+	Address      int                 `json:"address,omitempty"`
 	CreateAt     *pgtype.Timestamptz `json:"create_at,omitempty" swaggertype:"string"`
 	UpdateAt     *pgtype.Timestamptz `json:"update_at,omitempty" swaggertype:"string"`
 	DeleteAt     *pgtype.Timestamptz `json:"delete_at,omitempty" swaggertype:"string"`
 
-	Role    Role    `json:"role,omitempty"`
-	Address Address `json:"address,omitempty"`
+	RoleFull    Role    `json:"role_full,omitempty"`
+	AddressFull Address `json:"address_full,omitempty"`
 }
 
 func (u *User) BeforeCreate() error {

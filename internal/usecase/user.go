@@ -1,62 +1,67 @@
 package usecase
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
 )
 
-// TODO
-func (uc *UseCase) CreateUser(u entity.User) error {
-	err := uc.postgres.CreateUserRepo(u)
+func (uc *UseCase) CreateUser(u entity.User) (*entity.User, error) {
+	uu, err := uc.postgres.CreateUser(u)
 	if err != nil {
-		return fmt.Errorf("UserUseCase - CreateUser - uc.repo.CreateUser: %w", err)
+		log.Printf("Error - UserUseCase - CreateUser - uc.repo.CreateUser: %s", err)
+		return nil, err
 	}
 
-	return nil
+	return uu, nil
 }
 
-func (uc *UseCase) UpdateUser(id int, u entity.User) error {
-	//err := uc.postgres.UpdateUserRepo(id, u)
-	//if err != nil {
-	//	return fmt.Errorf("UserUseCase - UpdateUser - uc.repo.UpdateUser: %w", err)
-	//}
+func (uc *UseCase) UpdateUser(u entity.User, id int) (*entity.User, error) {
+	uu, err := uc.postgres.UpdateUser(u, id)
+	if err != nil {
+		log.Printf("Error - UserUseCase - UpdateUser - uc.repo.UpdateUser: %s", err)
+		return nil, err
+	}
 
-	return nil
+	return uu, nil
 }
 
 func (uc *UseCase) DeleteUser(id int) error {
-	err := uc.postgres.DeleteUserRepo(id)
+	err := uc.postgres.DeleteUser(id)
 	if err != nil {
-		return fmt.Errorf("UserUseCase - DeleteUser - uc.repo.DeleteUser: %w", err)
+		log.Printf("Error - UserUseCase - DeleteUser - uc.repo.DeleteUser: %s", err)
+		return err
 	}
 
 	return nil
 }
 
 func (uc *UseCase) GetUser(id int) (*entity.User, error) {
-	//user, err := uc.postgres.GetUserRepo(id)
-	//if err != nil {
-	//	return entity.User{}, fmt.Errorf("UserUseCase - GetUsers - uc.repo.GetUsers: %w", err)
-	//}
+	user, err := uc.postgres.GetUser(id)
+	if err != nil {
+		log.Printf("Error - UserUseCase - GetUsers - uc.repo.GetUsers: %s", err)
+		return nil, err
+	}
 
-	return nil, nil
+	return user, nil
 }
 
 func (uc *UseCase) GetUsers() (*[]entity.User, error) {
-	//users, err := uc.postgres.GetUsersRepo()
-	//if err != nil {
-	//	return nil, fmt.Errorf("UserUseCase - GetUsers - uc.repo.GetUsers: %w", err)
-	//}
+	users, err := uc.postgres.GetUsers()
+	if err != nil {
+		log.Printf("Error - UserUseCase - GetUsers - uc.repo.GetUsers: %s", err)
+		return nil, err
+	}
 
-	return nil, nil
+	return users, nil
 }
 
 func (uc *UseCase) GetUserByName(userName string) (*entity.User, error) {
-	//u, err := uc.postgres.GetUserByNameRepo(userName)
-	//if err != nil {
-	//	return entity.User{}, fmt.Errorf("UseCase - GetUserByName - uc.repo.GetUserByNameRepo: %w", err)
-	//}
+	u, err := uc.postgres.GetUserByName(userName)
+	if err != nil {
+		log.Printf("Error - UseCase - GetUserByName - uc.repo.GetUserByName: %s", err)
+		return nil, err
+	}
 
-	return nil, nil
+	return u, nil
 }

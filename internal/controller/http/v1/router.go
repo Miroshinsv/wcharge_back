@@ -7,16 +7,9 @@ import (
 	"github.com/Miroshinsv/wcharge_back/config"
 	"github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/Miroshinsv/wcharge_back/internal/entity"
-	httpSwagger "github.com/swaggo/http-swagger"
-
-	//httpSwagger "github.com/swaggo/http-swagger"
-
-	//"github.com/rs/zerolog/log"
-	"log"
-
-	// Swagger docs.
-	//_ "github.com/Miroshinsv/wcharge_back/docs"
 	"github.com/google/uuid"
+	httpSwagger "github.com/swaggo/http-swagger"
+	"log"
 	"net/http"
 	"time"
 )
@@ -32,19 +25,8 @@ func (s *server) NewHttpRouter() {
 
 	s.apiRouter = s.router.PathPrefix("/api/v1").Subrouter()
 
-	//s.apiRouter.HandleFunc(
-	//	"/swagger/*",
-	//	httpSwagger.Handler(httpSwagger.URL("docs/swagger.json")),
-	//)
-	//r := gin.New()
-	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//err = r.Run(":8989")
-	//if err != nil {
-	//	log.Printf("Error - Swagger - Gin - Run: %s", err)
-	//}
-
-	// TODO
-	//s.apiRouter.Use(s.authenticateUser)
+	// TODO uncomment after release logic for auth users
+	// s.apiRouter.Use(s.authenticateUser)
 
 	s.apiRouter.HandleFunc("/whoami", s.handleWhoAmI()).Methods(http.MethodGet)
 
@@ -65,7 +47,7 @@ func (s *server) NewHttpRouter() {
 
 func (s *server) handleWhoAmI() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(entity.User))
+		s.respond(w, http.StatusOK, r.Context().Value(ctxKeyUser).(entity.User))
 	}
 }
 
@@ -116,21 +98,21 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, err := s.sessionStore.Get(r, sessionName)
 		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+			s.error(w, http.StatusInternalServerError, err)
 			fmt.Printf("completed with %d %s\n", http.StatusInternalServerError, "s.sessionStore.Get")
 			return
 		}
 
 		id, ok := session.Values["user_id"]
 		if !ok {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
+			s.error(w, http.StatusUnauthorized, errNotAuthenticated)
 			fmt.Printf("completed with %d %s\n", http.StatusInternalServerError, "session.Values")
 			return
 		}
 
 		u, err := s.useCase.GetUser(id.(int))
 		if err != nil {
-			s.error(w, r, http.StatusUnauthorized, errNotAuthenticated)
+			s.error(w, http.StatusUnauthorized, errNotAuthenticated)
 			return
 		}
 

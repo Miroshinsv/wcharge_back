@@ -1,4 +1,3 @@
-// Package usecase implements application business logic. Each logic group in own file.
 package usecase
 
 import (
@@ -20,107 +19,104 @@ type (
 
 type (
 	UserAPI interface {
-		CreateUser(entity.User) error
-		UpdateUser(int, entity.User) error
+		CreateUser(entity.User) (*entity.User, error)
+		UpdateUser(entity.User, int) (*entity.User, error)
 		DeleteUser(int) error
-		GetUser(int) (entity.User, error)
-		GetUsers() ([]entity.User, error)
-		GetUserByName(userName string) (entity.User, error)
+		GetUser(int) (*entity.User, error)
+		GetUsers() (*[]entity.User, error)
+		GetUserByName(userName string) (*entity.User, error)
 	}
 
-	// TODO
 	UserRepo interface {
-		GetUserByNameRepo(userName string) (*entity.User, error)
-		CreateUserRepo(u entity.User) error
-		UpdateUserRepo(u entity.User, id int) error
-		DeleteUserRepo(id int) error
-		GetUserRepo(id int) (*entity.User, error)
-		GetUsersRepo() (*[]entity.User, error)
+		GetUserByName(string) (*entity.User, error)
+		CreateUser(entity.User) (*entity.User, error)
+		UpdateUser(entity.User, int) (*entity.User, error)
+		DeleteUser(int) error
+		GetUser(int) (*entity.User, error)
+		GetUsers() (*[]entity.User, error)
 	}
 )
 
 type (
 	StationAPI interface {
-		CreateStation(station entity.Station) error
-		UpdateStation(int, entity.Station) error
+		CreateStation(entity.Station) (*entity.Station, error)
+		UpdateStation(int, entity.Station) (*entity.Station, error)
 		DeleteStation(int) error
-		GetStation(int) (entity.Station, error)
-		GetStations() ([]entity.Station, error)
-		GetAllPowerbanksInStation(int) ([]entity.Powerbank, error)
+		GetStation(int) (*entity.Station, error)
+		GetStations() (*[]entity.Station, error)
 	}
 
 	StationRepo interface {
-		CreateStation(s entity.Station) (*entity.Station, error)
-		UpdateStation(s entity.Station, id int) (*entity.Station, error)
-		DeleteStationRepo(id int) error
-		GetStation(id int) (*entity.Station, error)
+		CreateStation(entity.Station) (*entity.Station, error)
+		UpdateStation(entity.Station, int) (*entity.Station, error)
+		DeleteStation(int) error
+		GetStation(int) (*entity.Station, error)
 		GetStations() (*[]entity.Station, error)
-		//GetAllPowerbanksInStation(stationId int) (*[]entity.Powerbank, error) // TODO move to powerbanks
 	}
 )
 
 type (
 	PowerbankAPI interface {
-		CreatePowerbank(station entity.Powerbank) error
-		UpdatePowerbank(int, entity.Powerbank) error
+		CreatePowerbank(entity.Powerbank) (*entity.Powerbank, error)
+		UpdatePowerbank(int, entity.Powerbank) (*entity.Powerbank, error)
 		DeletePowerbank(int) error
-		GetPowerbank(int) (entity.Powerbank, error)
-		GetPowerbanks() ([]entity.Powerbank, error)
+		GetPowerbank(int) (*entity.Powerbank, error)
+		GetPowerbanks() (*[]entity.Powerbank, error)
+		GetAllPowerbanksInStation(int) (*[]entity.Powerbank, error)
 	}
 
 	PowerbankRepo interface {
-		CreatePowerbank(p entity.Powerbank) (*entity.Powerbank, error)
-		UpdatePowerbank(p entity.Powerbank, id int) (*entity.Powerbank, error)
-		DeletePowerbank(id int) error
+		CreatePowerbank(entity.Powerbank) (*entity.Powerbank, error)
+		UpdatePowerbank(entity.Powerbank, int) (*entity.Powerbank, error)
+		DeletePowerbank(int) error
 		GetRamdomPowerbank() (*entity.Powerbank, error)
-		GetPowerbank(id int) (*entity.Powerbank, error)
+		GetPowerbank(int) (*entity.Powerbank, error)
 		GetPowerbanks() (*[]entity.Powerbank, error)
+		GetAllPowerbanksInStation(int) (*[]entity.Powerbank, error)
 	}
 )
 
 type (
 	AddressAPI interface {
-		CreateAddress(station entity.Address) error
-		UpdateAddress(int, entity.Address) error
+		CreateAddress(entity.Address) (*entity.Address, error)
+		UpdateAddress(int, entity.Address) (*entity.Address, error)
 		DeleteAddress(int) error
-		GetAddress(int) (entity.Address, error)
-		GetAddresses() ([]entity.Address, error)
+		GetAddress(int) (*entity.Address, error)
+		GetAddresses() (*[]entity.Address, error)
 	}
 
 	AddressRepo interface {
-		CreateAddress(addr entity.Address) (*entity.Address, error)
-		UpdateAddress(addr entity.Address, id int) (*entity.Address, error)
-		DeleteAddress(id int) error
-		GetAddress(id int) (*entity.Address, error)
+		CreateAddress(entity.Address) (*entity.Address, error)
+		UpdateAddress(entity.Address, int) (*entity.Address, error)
+		DeleteAddress(int) error
+		GetAddress(int) (*entity.Address, error)
 		GetAddresses() (*[]entity.Address, error)
 	}
 )
 
 type (
-	RoleAPI interface {
-		GetRole(int) (entity.Role, error)
-		GetRoles() ([]entity.Role, error)
-	}
-
 	RoleRepo interface {
-		GetRole(id int) (*entity.Role, error)
+		GetRole(int) (*entity.Role, error)
 		GetRoles() (*[]entity.Role, error)
 	}
 )
 
 type (
 	UserActionAPI interface {
-		GetUserPowerbanks(userId int) ([]entity.Powerbank, error) // all user's powerbanks
-		TakePowerbank(userId int, powerbankId int, stationId int) error
-		PutPowerbank(userId int, powerbankId int, stationId int) error
-		AddPowerbankToStation(powerbankId int, stationId int) error
+		GetUserPowerbanks(int) (*[]entity.Powerbank, error)
+		TakePowerbank(int, int) (*entity.Powerbank, error)
+		PutPowerbank(int, int, int, int) error
+		AddPowerbankToStation(int, int, int) error
 	}
 
 	UserActionRepo interface {
-		GetUserPowerbanksRepo(userId int) (*[]entity.Powerbank, error)
-		InsertStationPowerbank(powerbankId int, stationId int, position int) error
-		TakePowerbank(userId int, powerbankId int) error
-		PutPowerbankRepo(userId int, powerbankId int, stationId int, position int) error
-		AddPowerbankToStationRepo(powerbankId int, stationId int, position int) error
+		GetUsersPowerbanks(int) (*[]entity.Powerbank, error)
+		InsertStationPowerbank(int, int, int) error
+		DeleteStationPowerbank(int, int) error
+		InsertUserPowerbank(int, int, int) error
+		DeleteUserPowerbank(int, int) error
+		TakePowerbank(int, int) error
+		PutPowerbank(int, int, int, int) error
+		AddPowerbankToStation(int, int, int) error
 	}
 )

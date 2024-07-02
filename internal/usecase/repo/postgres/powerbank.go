@@ -15,7 +15,7 @@ func (r *Repo) CreatePowerbank(p entity.Powerbank) (*entity.Powerbank, error) {
 		Suffix("returning id").
 		ToSql()
 	if err != nil {
-		log.Printf("CreatePowerbankRepo - r.Builder: %s", err)
+		log.Printf("Error - CreatePowerbank - r.Builder: %s", err)
 		return nil, err
 	}
 
@@ -24,7 +24,7 @@ func (r *Repo) CreatePowerbank(p entity.Powerbank) (*entity.Powerbank, error) {
 		&p.ID,
 	)
 	if err != nil {
-		log.Printf("PostgresRepo - CreateStationRepo - r.Pool.Exec: %s", err)
+		log.Printf("Error - Postgres - CreateStation - r.Pool.Exec: %s", err)
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (r *Repo) UpdatePowerbank(p entity.Powerbank, id int) (*entity.Powerbank, e
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		log.Printf("UpdatePowerbankRepo - r.Builder: %s", err)
+		log.Printf("Error - UpdatePowerbank - r.Builder: %s", err)
 		return nil, err
 	}
 
@@ -51,13 +51,9 @@ func (r *Repo) UpdatePowerbank(p entity.Powerbank, id int) (*entity.Powerbank, e
 		&p.Capacity,
 		&p.UpdateAt,
 		&p.Capacity,
-		&p.Used,
-		&p.Position,
-		&p.CreateAt,
-		&p.Removed,
 	)
 	if err != nil {
-		log.Printf("UpdatePowerbankRepo - r.Pool.Query: %s", err)
+		log.Printf("Error - UpdatePowerbank - r.Pool.Query: %s", err)
 		return nil, err
 	}
 
@@ -71,20 +67,19 @@ func (r *Repo) DeletePowerbank(id int) error {
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		log.Printf("DeletePowerbankRepo - r.Builder: %s", err)
+		log.Printf("Error - DeletePowerbank - r.Builder: %s", err)
 		return err
 	}
 
 	_, err = r.Pool.Exec(context.Background(), sql, args...)
 	if err != nil {
-		log.Printf("DeletePowerbankRepo - r.Pool.Query: %s", err)
+		log.Printf("Error - DeletePowerbank - r.Pool.Query: %s", err)
 		return err
 	}
 	return nil
 }
 
 func (r *Repo) GetRamdomPowerbank() (*entity.Powerbank, error) {
-	powerbank := entity.Powerbank{}
 
 	sql, args, err := r.Builder.
 		Select("powerbanks.id, serial_number, used, tsp.position").
@@ -95,11 +90,12 @@ func (r *Repo) GetRamdomPowerbank() (*entity.Powerbank, error) {
 		Limit(1).
 		ToSql()
 	if err != nil {
-		log.Printf("GetRamdomPowerbank - r.Builder: %s", err)
+		log.Printf("Error - GetRamdomPowerbank - r.Builder: %s", err)
 		return nil, err
 	}
 
 	row := r.Pool.QueryRow(context.Background(), sql, args...)
+	powerbank := entity.Powerbank{}
 	err = row.Scan(
 		&powerbank.ID,
 		&powerbank.SerialNumber,
@@ -107,7 +103,7 @@ func (r *Repo) GetRamdomPowerbank() (*entity.Powerbank, error) {
 		&powerbank.Position,
 	)
 	if err != nil {
-		log.Printf("GetRamdomPowerbank - r.Pool.Query: %s", err)
+		log.Printf("Error - GetRamdomPowerbank - r.Pool.Query: %s", err)
 		return nil, err
 	}
 
@@ -116,12 +112,12 @@ func (r *Repo) GetRamdomPowerbank() (*entity.Powerbank, error) {
 
 func (r *Repo) GetPowerbank(id int) (*entity.Powerbank, error) {
 	sql, args, err := r.Builder.
-		Select("id, serial_number, capacity, used, removed, created_at, updated_at, deleted_at").
+		Select("id, serial_number, capacity, used").
 		From(powerbanksTableName).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		log.Printf("GetPowerbankRepo - r.Builder: %s", err)
+		log.Printf("Error - GetPowerbank - r.Builder: %s", err)
 		return nil, err
 	}
 
@@ -131,14 +127,9 @@ func (r *Repo) GetPowerbank(id int) (*entity.Powerbank, error) {
 		&powerbank.ID,
 		&powerbank.SerialNumber,
 		&powerbank.Capacity,
-		&powerbank.Used,
-		&powerbank.Removed,
-		&powerbank.CreateAt,
-		&powerbank.UpdateAt,
-		&powerbank.DeleteAt,
 	)
 	if err != nil {
-		log.Printf("GetPowerbankRepo - rows.Scan: %s", err)
+		log.Printf("Error - GetPowerbankRepo - rows.Scan: %s", err)
 		return nil, err
 	}
 
@@ -147,40 +138,76 @@ func (r *Repo) GetPowerbank(id int) (*entity.Powerbank, error) {
 
 func (r *Repo) GetPowerbanks() (*[]entity.Powerbank, error) {
 	sql, _, err := r.Builder.
-		Select("id, serial_number, capacity, used, removed, created_at, updated_at, deleted_at").
+		Select("id, serial_number, capacity, used").
 		From(powerbanksTableName).
+		Where(squirrel.Eq{"removed": false}).
 		ToSql()
 	if err != nil {
-		log.Printf("GetPowerbanksRepo - r.Builder: %s", err)
+		log.Printf("Error - GetPowerbanks - r.Builder: %s", err)
 		return nil, err
 	}
 
 	rows, err := r.Pool.Query(context.Background(), sql)
 	if err != nil {
-		log.Printf("GetPowerbanksRepo - r.Pool.Query: %s", err)
+		log.Printf("Error - GetPowerbanks - r.Pool.Query: %s", err)
 		return nil, err
 	}
 	defer rows.Close()
 
 	entities := make([]entity.Powerbank, 0, _defaultEntityCap)
 	for rows.Next() {
-		s := entity.Powerbank{}
+		p := entity.Powerbank{}
 		err = rows.Scan(
-			&s.ID,
-			&s.SerialNumber,
-			&s.Capacity,
-			&s.Used,
-			&s.Removed,
-			&s.CreateAt,
-			&s.UpdateAt,
-			&s.DeleteAt,
+			&p.ID,
+			&p.SerialNumber,
+			&p.Capacity,
 		)
 		if err != nil {
-			log.Printf("GetPowerbanksRepo - rows.Scan: %s", err)
+			log.Printf("Error - GetPowerbankы - rows.Scan: %s", err)
 			return nil, err
 		}
 
-		entities = append(entities, s)
+		entities = append(entities, p)
+	}
+
+	return &entities, nil
+}
+
+func (r *Repo) GetAllPowerbanksInStation(stationId int) (*[]entity.Powerbank, error) {
+	sql, args, err := r.Builder.
+		Select("powerbanks.id, serial_number, capacity, used").
+		From(powerbanksTableName).
+		Join("rel__stations__powerbanks rsp on powerbanks.id = rsp.powerbank").
+		Where(squirrel.And{
+			squirrel.Eq{"rsp.station": stationId},
+			squirrel.Eq{"removed": false},
+		}).
+		ToSql()
+	if err != nil {
+		log.Printf("Error - GetAllPowerbanksInStation - r.Builder: %s", err)
+		return nil, err
+	}
+
+	rows, err := r.Pool.Query(context.Background(), sql, args...)
+	if err != nil {
+		log.Printf("Error - GetAllPowerbanksInStation - r.Pool.Query: %s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	entities := make([]entity.Powerbank, 0, _defaultEntityCap)
+	for rows.Next() {
+		p := entity.Powerbank{}
+		err = rows.Scan(
+			&p.ID,
+			&p.SerialNumber,
+			&p.Capacity,
+		)
+		if err != nil {
+			log.Printf("Error - GetAllPowerbanksInStation - rows.Scan: %s", err)
+			return nil, err
+		}
+		entities = append(entities, p)
 	}
 
 	return &entities, nil

@@ -37,6 +37,15 @@ definitions:
         description: сколько уже использована банка в часах // up юзается или нет
         type: boolean
     type: object
+  entity.Role:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      privileges:
+        type: integer
+    type: object
   entity.Station:
     properties:
       address:
@@ -64,9 +73,298 @@ definitions:
       update_at:
         type: string
     type: object
+  entity.User:
+    properties:
+      address:
+        type: integer
+      address_full:
+        $ref: '#/definitions/entity.Address'
+      create_at:
+        type: string
+      delete_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      password_hash:
+        type: string
+      password_salt:
+        type: string
+      phone:
+        type: string
+      removed:
+        type: boolean
+      role:
+        type: integer
+      role_full:
+        $ref: '#/definitions/entity.Role'
+      update_at:
+        type: string
+      username:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /addresses:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Address'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about all addresses
+    post:
+      parameters:
+      - description: Country
+        in: body
+        name: Country
+        required: true
+        schema:
+          type: string
+      - description: City
+        in: body
+        name: City
+        required: true
+        schema:
+          type: string
+      - description: Address
+        in: body
+        name: Address
+        required: true
+        schema:
+          type: string
+      - description: Latitude
+        in: body
+        name: Lat
+        required: true
+        schema:
+          type: number
+      - description: Longitude
+        in: body
+        name: Lng
+        required: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Address'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create address
+  /addresses/{addressId}:
+    delete:
+      parameters:
+      - description: Address Id
+        in: path
+        name: addressId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete address
+    get:
+      parameters:
+      - description: Address Id
+        in: path
+        name: addressId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Address'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about address
+    put:
+      parameters:
+      - description: Address Id
+        in: path
+        name: addressId
+        required: true
+        type: integer
+      - description: Country
+        in: body
+        name: Country
+        required: true
+        schema:
+          type: string
+      - description: City
+        in: body
+        name: City
+        required: true
+        schema:
+          type: string
+      - description: Address
+        in: body
+        name: Address
+        required: true
+        schema:
+          type: string
+      - description: Latitude
+        in: body
+        name: Lat
+        required: true
+        schema:
+          type: number
+      - description: Longitude
+        in: body
+        name: Lng
+        required: true
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Address'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update address
+  /powerbanks:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Powerbank'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about all powerbanks
+    post:
+      parameters:
+      - description: Serial number of powerbank
+        in: body
+        name: SerialNumber
+        required: true
+        schema:
+          type: string
+      - description: Full capacity on powerbank
+        in: body
+        name: Capacity
+        required: true
+        schema:
+          type: number
+      - description: Status on use's powerbanks
+        in: body
+        name: Used
+        required: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Powerbank'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create powerbank
+  /powerbanks/{powerbankId}:
+    delete:
+      parameters:
+      - description: Powerbank Id
+        in: path
+        name: powerbankId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create powerbank
+    get:
+      parameters:
+      - description: Powerbank Id
+        in: path
+        name: powerbankId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Powerbank'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about powerbank
+    put:
+      parameters:
+      - description: Powerbank Id
+        in: path
+        name: powerbankId
+        required: true
+        type: integer
+      - description: Status on use's powerbanks
+        in: body
+        name: Used
+        required: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Powerbank'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create powerbank
   /stations:
     get:
       responses:
@@ -78,7 +376,10 @@ paths:
             type: array
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Get info about all stations
     post:
       parameters:
@@ -88,7 +389,7 @@ paths:
         required: true
         schema:
           type: string
-      - description: Address ID
+      - description: Address Id
         in: body
         name: Address
         required: true
@@ -113,14 +414,17 @@ paths:
             $ref: '#/definitions/entity.Station'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Create station
-  /stations/{id}:
+  /stations/{stationId}:
     delete:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
-        name: id
+        name: stationId
         required: true
         type: integer
       responses:
@@ -128,13 +432,16 @@ paths:
           description: OK
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Delete station
     get:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
-        name: id
+        name: stationId
         required: true
         type: integer
       responses:
@@ -144,16 +451,19 @@ paths:
             $ref: '#/definitions/entity.Station'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Get info about station
     put:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
-        name: id
+        name: stationId
         required: true
         type: integer
-      - description: Address ID
+      - description: Address Id
         in: body
         name: Address
         required: true
@@ -172,14 +482,17 @@ paths:
             $ref: '#/definitions/entity.Station'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Update station
-  /stations/{id}/powerbanks:
+  /stations/{stationId}/powerbanks:
     get:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
-        name: id
+        name: stationId
         required: true
         type: integer
       responses:
@@ -191,13 +504,16 @@ paths:
             type: array
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Get powerbanks in station
     post:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
-        name: id
+        name: stationId
         required: true
         type: integer
       responses:
@@ -207,17 +523,20 @@ paths:
             type: integer
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Take random powerbank from station
   /stations/{stationId}/powerbanks/{powerbankId}:
     post:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
         name: stationId
         required: true
         type: integer
-      - description: Powerbank ID
+      - description: Powerbank Id
         in: path
         name: powerbankId
         required: true
@@ -233,16 +552,19 @@ paths:
           description: OK
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Add powerbank to station
     put:
       parameters:
-      - description: Station ID
+      - description: Station Id
         in: path
         name: stationId
         required: true
         type: integer
-      - description: Powerbank ID
+      - description: Powerbank Id
         in: path
         name: powerbankId
         required: true
@@ -252,6 +574,159 @@ paths:
           description: OK
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Return powerbank to station
+  /users:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about all users
+    post:
+      parameters:
+      - description: Username
+        in: body
+        name: UserName
+        required: true
+        schema:
+          type: string
+      - description: Email
+        in: body
+        name: Email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: Password
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create station
+  /users/{userId}:
+    delete:
+      parameters:
+      - description: User Id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete station
+    get:
+      parameters:
+      - description: User Id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about user
+    put:
+      parameters:
+      - description: User Id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Username
+        in: body
+        name: UserName
+        required: true
+        schema:
+          type: string
+      - description: Email
+        in: body
+        name: Email
+        required: true
+        schema:
+          type: string
+      - description: Password
+        in: body
+        name: Password
+        required: true
+        schema:
+          type: string
+      - description: Address Id
+        in: body
+        name: Address
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update station
+  /users/{userId}/powerbanks:
+    get:
+      parameters:
+      - description: User Id
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Powerbank'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get info about all powerbanks of users
 swagger: "2.0"

@@ -17,6 +17,7 @@ func (r *Repo) CreateAddress(addr entity.Address) (*entity.Address, error) {
 		log.Printf("PostgresRepo - CreateAddressRepo - r.Builder: %s", err)
 		return nil, err
 	}
+
 	row := r.Pool.QueryRow(context.Background(), sql, args...)
 	err = row.Scan(
 		&addr.ID,

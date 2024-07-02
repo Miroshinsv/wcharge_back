@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/Miroshinsv/wcharge_back/config"
@@ -42,7 +43,6 @@ func NewServer(u *usecase.UseCase, sessionStore sessions.Store) *server {
 		router:       mux.NewRouter(),
 		useCase:      u,
 		sessionStore: sessionStore,
-		//logger:       l,
 	}
 	return s
 }
@@ -72,16 +72,20 @@ func Start(cfg *config.Config, u *usecase.UseCase) {
 	}
 }
 
-func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
-	s.respond(w, r, code, map[string]string{"error": err.Error()})
+func (s *server) error(w http.ResponseWriter, code int, err error) {
+	s.respond(w, code, map[string]string{"error": err.Error(), "code": strconv.Itoa(code)})
 }
 
-func (s *server) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
-	w.WriteHeader(code)
+func (s *server) respond(w http.ResponseWriter, code int, data interface{}) {
 	if data != nil {
 		err := json.NewEncoder(w).Encode(data)
-		if err != nil && code != http.StatusInternalServerError { // анти вечный цикл
-			s.error(w, r, http.StatusInternalServerError, err)
+		if err != nil {
+			code = http.StatusInternalServerError
+			_ = json.NewEncoder(w).Encode(
+				map[string]string{"error": err.Error(), "code": strconv.Itoa(http.StatusInternalServerError)},
+			)
 		}
 	}
+
+	w.WriteHeader(code)
 }

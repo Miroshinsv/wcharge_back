@@ -55,8 +55,6 @@ func (r *Repo) UpdateStation(s entity.Station, id int) (*entity.Station, error) 
 		&s.Address,
 		&s.Capacity,
 		&s.FreeCapacity,
-		&s.CreateAt,
-		&s.UpdateAt,
 	)
 	if err != nil {
 		log.Printf("Error - Repo - UpdateStation - r.Pool.QueryRow: %s", err)
@@ -65,7 +63,7 @@ func (r *Repo) UpdateStation(s entity.Station, id int) (*entity.Station, error) 
 	return &s, nil
 }
 
-func (r *Repo) DeleteStationRepo(id int) error {
+func (r *Repo) DeleteStation(id int) error {
 	sql, args, err := r.Builder.
 		Update(stationsTableName).
 		Set("removed", true).
@@ -91,7 +89,7 @@ func (r *Repo) GetStation(id int) (*entity.Station, error) {
 		Join("addresses on stations.address = addresses.id").
 		Where(squirrel.And{
 			squirrel.Eq{"stations.id": id},
-			squirrel.Eq{"removed": false},
+			squirrel.Eq{"stations.removed": false},
 		}).
 		ToSql()
 	if err != nil {
@@ -129,9 +127,7 @@ func (r *Repo) GetStations() (*[]entity.Station, error) {
 		Select("stations.id, serial_number, addresses.*").
 		From(stationsTableName).
 		Join("addresses on stations.address = addresses.id").
-		Where(squirrel.And{
-			squirrel.Eq{"removed": false},
-		}).
+		Where(squirrel.Eq{"stations.removed": false}).
 		ToSql()
 	if err != nil {
 		log.Printf("Error - Repo - GetStations - r.Builder: %s", err)
@@ -169,45 +165,3 @@ func (r *Repo) GetStations() (*[]entity.Station, error) {
 
 	return &entities, nil
 }
-
-// TODO
-//func (r *Repo) GetAllPowerbanksInStation(stationId int) (*[]entity.Powerbank, error) {
-//	subQ, subArgs, err := squirrel.
-//		Select("powerbank").
-//		From("rel__stations__powerbanks").
-//		Where(squirrel.Eq{"station": stationId}).
-//		PlaceholderFormat(squirrel.Question).
-//		ToSql()
-//	if err != nil {
-//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - subQ: %w", err)
-//	}
-//	sql, args, err := r.Builder.
-//		Select("id, serial_number, capacity, used, removed, created_at, updated_at, deleted_at").
-//		From("tbl_powerbanks").
-//		Where("id in ("+subQ+")", subArgs...).
-//		ToSql()
-//	if err != nil {
-//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Builder: %w", err)
-//	}
-//	ctx := context.Background()                  //!!!
-//	rows, err := r.Pool.Query(ctx, sql, args...) //!!!
-//	if err != nil {
-//		return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - r.Pool.Query: %w", err)
-//	}
-//	defer rows.Close()
-//
-//	entities := make([]entity.Powerbank, 0, _defaultEntityCap)
-//
-//	for rows.Next() {
-//		s := entity.Powerbank{}
-//
-//		err = rows.Scan(&s.ID, &s.SerialNumber, &s.Capacity, &s.Used, &s.Removed, &s.CreateAt, &s.UpdateAt, &s.DeleteAt)
-//		if err != nil {
-//			return nil, fmt.Errorf("GetAllPowerbanksInStationRepo - rows.Scan: %w", err)
-//		}
-//
-//		entities = append(entities, s)
-//	}
-//
-//	return &entities, nil
-//}
